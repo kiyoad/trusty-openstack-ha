@@ -1,0 +1,41 @@
+#!/bin/bash
+set -eux
+
+ssh sv1 sudo mkdir -p /var/opt/osd
+ssh sv2 sudo mkdir -p /var/opt/osd
+ssh sv3 sudo mkdir -p /var/opt/osd
+ceph-deploy purge sv1 sv2 sv3
+ceph-deploy purgedata sv1 sv2 sv3
+rm -f ceph.*
+ssh sv1 sudo rm -rf /var/opt/osd/*
+ssh sv2 sudo rm -rf /var/opt/osd/*
+ssh sv3 sudo rm -rf /var/opt/osd/*
+
+ceph-deploy new sv1 sv2 sv3
+echo "public_network = {{ ceph_mon_osd_server_cidr }}" >> ceph.conf
+echo "cluster_network = {{ ceph_mon_osd_cluster_cidr }}" >> ceph.conf
+echo "[osd]" >> ceph.conf
+echo "osd_journal_size = 1024" >> ceph.conf
+
+ceph-deploy install sv1 sv2 sv3
+ceph-deploy mon create-initial
+sleep 30
+ceph-deploy gatherkeys sv1
+
+ceph-deploy osd prepare  sv1:/var/opt/osd sv2:/var/opt/osd sv3:/var/opt/osd
+ceph-deploy osd activate sv1:/var/opt/osd sv2:/var/opt/osd sv3:/var/opt/osd
+
+sudo mkdir -p /etc/ceph
+sudo rm -f /etc/ceph/*
+ceph-deploy admin sv1 sv2 sv3 starter
+
+sudo chmod +r /etc/ceph/ceph.client.admin.keyring
+#ceph -w
+ceph status
+
+# ssh sv1 sudo ceph --admin-daemon /var/run/ceph/ceph-osd.0.asok config show
+# ssh sv1 sudo ceph --admin-daemon /var/run/ceph/ceph-mon.sv1.asok config show
+# ssh sv2 sudo ceph --admin-daemon /var/run/ceph/ceph-osd.1.asok config show
+# ssh sv2 sudo ceph --admin-daemon /var/run/ceph/ceph-mon.sv2.asok config show
+# ssh sv3 sudo ceph --admin-daemon /var/run/ceph/ceph-osd.2.asok config show
+# ssh sv3 sudo ceph --admin-daemon /var/run/ceph/ceph-mon.sv3.asok config show

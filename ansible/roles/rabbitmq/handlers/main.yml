@@ -1,0 +1,5 @@
+---
+# RabbitMQ handler
+
+- name: Restart RabbitMQ
+  service: name=rabbitmq-server enabled=yes state=restarted

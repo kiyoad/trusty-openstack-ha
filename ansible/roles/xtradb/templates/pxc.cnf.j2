@@ -1,0 +1,40 @@
+[mysqld]
+
+# Path to Galera library
+wsrep_provider=/usr/lib/libgalera_smm.so
+
+# Cluster connection URL contains the IPs of node#1, node#2 and node#3
+wsrep_cluster_address=gcomm://{{ cluster_server_ips | join(',') }}
+
+# In order for Galera to work correctly binlog format should be ROW
+binlog_format=ROW
+
+# MyISAM storage engine has only experimental support
+default_storage_engine=InnoDB
+
+# This changes how InnoDB autoincrement locks are managed and is a requirement for Galera
+innodb_autoinc_lock_mode=2
+
+# 2015-05-19 13:36:18 7fa322642780 InnoDB: Warning: Using
+# innodb_locks_unsafe_for_binlog is DEPRECATED. This option may be
+# removed in future releases. Please use READ COMMITTED transaction
+# isolation level instead, see
+# http://dev.mysql.com/doc/refman/5.6/en/set-transaction.html.
+#
+#innodb_locks_unsafe_for_binlog=1
+
+# Node #1 address
+wsrep_node_address={{ my_ip }}
+bind-address={{ my_ip }}
+
+# Cluster name
+wsrep_cluster_name=my_ubuntu_cluster
+
+# SST method
+wsrep_sst_method=xtrabackup-v2
+
+# Authentication for SST method
+wsrep_sst_auth="sstuser:s3cretPass"
+
+# Port for HAProxy
+port={{ mysql_port }}

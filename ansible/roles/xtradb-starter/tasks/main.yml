@@ -1,0 +1,21 @@
+---
+# Start Percona XtraDB cluster
+
+- name: Install Percona XtraDB cluster client
+  apt: name=percona-xtradb-cluster-client-5.6
+
+- name: Create Percona XtraDB cluster startup script directory
+  file: path=/home/vagrant/percona-xtradb-cluster state=directory owner=vagrant group=vagrant mode=0755
+
+- name: Install Percona XtraDB cluster startup script
+  template: src=setup-pxc.sh.j2 dest=/home/vagrant/percona-xtradb-cluster/setup-pxc.sh owner=vagrant group=vagrant mode=0700
+
+- name: Run Percona XtraDB cluster startup script
+  shell: /home/vagrant/percona-xtradb-cluster/setup-pxc.sh > /home/vagrant/percona-xtradb-cluster/setup-pxc.log 2>&1
+  sudo_user: vagrant
+  args:
+    chdir: /home/vagrant/percona-xtradb-cluster
+    creates: /home/vagrant/percona-xtradb-cluster/done
+
+- name: Install Percona XtraDB cluster cold-start script
+  copy: src=cold-start.sh dest=/home/vagrant/percona-xtradb-cluster/cold-start.sh owner=vagrant group=vagrant mode=0700

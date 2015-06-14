@@ -1,0 +1,5 @@
+---
+# Deploy cluster.
+
+- include: cluster.yml
+- include: starter.yml

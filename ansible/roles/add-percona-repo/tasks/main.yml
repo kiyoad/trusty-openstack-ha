@@ -1,0 +1,10 @@
+---
+# Setup Percona XtraDB Cluster repository
+
+- name: Add apt key
+  shell: apt-key adv --keyserver pool.sks-keyservers.net --recv-keys 1C4CBDCDCD2EFD2A
+  args:
+    creates: /etc/apt/sources.list.d/percona_com_repo.list
+
+- name: Add apt repository
+  copy: src=percona_com_repo.list dest=/etc/apt/sources.list.d/percona_com_repo.list

@@ -1,0 +1,13 @@
+---
+# Setup Percona XtraDB Cluster
+
+- name: Install Percona XtraDB Cluster server
+  apt: name=percona-xtradb-cluster-56
+
+- name: Stop XtraDB
+  shell: /etc/init.d/mysql stop
+  args:
+    creates: /etc/mysql/conf.d/pxc.cnf
+
+- name: Install Percona XtraDB Cluster configuration
+  template: src=pxc.cnf.j2 dest=/etc/mysql/conf.d/pxc.cnf

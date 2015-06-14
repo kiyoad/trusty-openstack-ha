@@ -1,0 +1,12 @@
+---
+# Corosync and Pacemaker handler
+
+- name: Restart Corosync
+  service: name=corosync enabled=yes state=restarted
+
+- name: Restart Pacemaker
+  service: name=pacemaker enabled=yes state=restarted
+
+- name: Register CRM
+  shell: crm configure load update /tmp/cluster.crm
+  when: require_crm_settings

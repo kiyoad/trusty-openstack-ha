@@ -1,0 +1,26 @@
+#!/bin/bash
+set -eux
+
+ssh sv1 sudo service mysql bootstrap-pxc
+
+sqlfile=`mktemp /tmp/setup-pxc-XXXXX`
+cat <<EOF > ${sqlfile}
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%'         IDENTIFIED BY '{{ mysql_root_password }}';
+GRANT USAGE ON *.* TO 'haproxy'@'%';
+CREATE USER 'sstuser'@'localhost' IDENTIFIED BY 's3cretPass';
+GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'sstuser'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+
+scp ${sqlfile} sv1:${sqlfile}
+set +e
+ssh sv1 mysql -P {{ mysql_port }} -uroot -N -s -e \"source ${sqlfile}\";
+set -e
+rm ${sqlfile}
+ssh sv1 rm ${sqlfile}
+
+ssh sv2 sudo service mysql start
+ssh sv3 sudo service mysql start
+
+touch done

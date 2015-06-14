@@ -1,0 +1,22 @@
+---
+# Common task
+
+- name: Add local package repository
+  shell: |
+    export local_repo=/etc/apt/sources.list.d/local_repo.list
+    echo 'deb     http://192.168.1.200/apt-mirror/ubuntu/ trusty main restricted universe' >  ${local_repo}
+    echo 'deb-src http://192.168.1.200/apt-mirror/ubuntu/ trusty main restricted universe' >> ${local_repo}
+  args:
+    creates: /etc/apt/sources.list.d/local_repo.list
+
+- name: Upgrade default package
+  apt: upgrade=yes update_cache=yes cache_valid_time=86400
+
+- name: Install ntpd
+  apt: name=ntp
+
+- name: Install hosts
+  template: src=hosts.j2 dest=/etc/hosts
+
+- name: Add authorized key
+  authorized_key: user=vagrant key="{{ lookup('file', 'cluster_id_rsa.pub') }}"

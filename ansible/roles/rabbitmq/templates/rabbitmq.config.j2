@@ -1,0 +1,9 @@
+[
+  {rabbit,
+    [
+      {tcp_listeners, [{{ rabbitmq_port }}]},
+      {default_user,  <<"{{ rabbitmq_user }}">>},
+      {default_pass,  <<"{{ rabbitmq_password }}">>}
+    ]
+  }
+].

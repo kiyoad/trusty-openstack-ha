@@ -1,0 +1,15 @@
+---
+# OpenStack servers
+
+- hosts:
+    - sv1
+    - sv2
+    - sv3
+  roles:
+    - add-percona-repo
+    - common
+    - xtradb
+    - rabbitmq
+    - haproxy
+    - corosync-pacemaker
+  sudo: yes

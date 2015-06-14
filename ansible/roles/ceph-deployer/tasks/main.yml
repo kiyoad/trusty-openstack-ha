@@ -1,0 +1,21 @@
+---
+# Deploy Ceph
+
+- name: Install ceph-deploy
+  apt: name=ceph-deploy
+
+- name: Install ceph-common
+  apt: name=ceph-common
+
+- name: Create ceph install script directory
+  file: path=/home/vagrant/ceph state=directory owner=vagrant group=vagrant mode=0755
+
+- name: Install ceph install script
+  template: src=setup-ceph.sh.j2 dest=/home/vagrant/ceph/setup-ceph.sh owner=vagrant group=vagrant mode=0700
+
+- name: Run ceph install script
+  shell: /home/vagrant/ceph/setup-ceph.sh > /home/vagrant/ceph/setup-ceph.log 2>&1
+  sudo_user: vagrant
+  args:
+    chdir: /home/vagrant/ceph
+    creates: /home/vagrant/ceph/ceph.conf

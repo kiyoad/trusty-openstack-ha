@@ -1,0 +1,12 @@
+---
+# Starter server
+
+- hosts: starter
+  roles:
+    - add-percona-repo
+    - common
+    - starter
+    - ceph-deployer
+    - xtradb-starter
+    - rabbitmq-starter
+  sudo: yes

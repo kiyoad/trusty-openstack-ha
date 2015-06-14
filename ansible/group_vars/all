@@ -1,0 +1,37 @@
+---
+# Common settings
+
+cluster_virtual_ip: 10.0.0.100
+
+cluster_server_count: 3
+cluster_server_ips:
+  - 10.0.0.11
+  - 10.0.0.12
+  - 10.0.0.13
+
+cluster_interconnect_ips:
+  - 10.0.1.11
+  - 10.0.1.12
+  - 10.0.1.13
+
+cluster_servers:
+  - ip: "{{ cluster_virtual_ip }}"
+    name: svx.local svx
+  - ip: "{{ cluster_server_ips[0] }}"
+    name: sv1.local sv1
+  - ip: "{{ cluster_server_ips[1] }}"
+    name: sv2.local sv2
+  - ip: "{{ cluster_server_ips[2] }}"
+    name: sv3.local sv3
+  - ip: 10.0.0.254
+    name: starter.local starter
+
+ceph_mon_osd_server_cidr: 10.0.0.0/24
+ceph_mon_osd_cluster_cidr: 10.0.1.0/24
+
+mysql_root_password: Passw0rd
+mysql_port: 13306 # default 3306
+
+rabbitmq_user: clusteruser
+rabbitmq_password: Passw0rd
+rabbitmq_port: 5673 # default: 5672

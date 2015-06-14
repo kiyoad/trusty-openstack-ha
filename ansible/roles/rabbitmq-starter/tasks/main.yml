@@ -1,0 +1,18 @@
+---
+# Start RabbitMQ Cluster
+
+- name: Install amqp-tools
+  apt: name=amqp-tools
+
+- name: Create RabbitMQ Cluster startup script directory
+  file: path=/home/vagrant/rabbitmq state=directory owner=vagrant group=vagrant mode=0755
+
+- name: Install RabbitMQ Cluster startup script
+  template: src=setup-rabbitmq.sh.j2 dest=/home/vagrant/rabbitmq/setup-rabbitmq.sh owner=vagrant group=vagrant mode=0700
+
+- name: Run RabbitMQ Cluster startup script
+  shell: /home/vagrant/rabbitmq/setup-rabbitmq.sh > /home/vagrant/rabbitmq/setup-rabbitmq.log 2>&1
+  sudo_user: vagrant
+  args:
+    chdir: /home/vagrant/rabbitmq
+    creates: /home/vagrant/rabbitmq/done

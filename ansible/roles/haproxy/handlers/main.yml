@@ -1,0 +1,6 @@
+---
+# HAProxy handler
+
+- name: Restart HAProxy
+  shell: crm resource restart p_haproxy
+  ignore_errors: True
