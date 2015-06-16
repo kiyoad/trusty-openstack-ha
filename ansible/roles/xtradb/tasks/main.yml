@@ -11,3 +11,6 @@
 
 - name: Install Percona XtraDB Cluster configuration
   template: src=pxc.cnf.j2 dest=/etc/mysql/conf.d/pxc.cnf
+
+- name: Install the Python MySQL library
+  apt: name=python-mysqldb
