@@ -8,7 +8,7 @@ global
     pidfile /var/run/haproxy.pid
     # echo "help" | sudo socat stdio /var/lib/haproxy/stats
     stats socket /var/lib/haproxy/stats
-    maxconn 4000
+    maxconn 4096
 
 defaults
     log  global
@@ -21,6 +21,18 @@ defaults
     timeout  client 1m
     timeout  server 1m
     timeout  check 10s
+
+listen hastats
+    bind 0.0.0.0:{{ haproxy_stats_port }}
+    mode http
+    maxconn 64
+    timeout connect 5000
+    timeout client 10000
+    timeout server 10000
+    stats enable
+    stats show-legends
+    stats uri /haproxy?hastats
+    stats auth {{ haproxy_stats_user }}:{{ haproxy_stats_pass }}
 
 listen mysql
     bind {{ cluster_virtual_ip }}:3306

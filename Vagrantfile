@@ -16,7 +16,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       hostname = "%s%d" % [prefix, (i + 1)]
       config.vm.define "#{hostname}" do |conf|
         conf.vm.hostname = "#{hostname}.local"
-        conf.vm.network :forwarded_port, guest: "15672", host: "#{5672 + 10000 * (i + 1)}"
+        conf.vm.network :forwarded_port, guest: "15672", host: "#{5672 + 10000 * (i + 1)}" # RabbitMQ
+        conf.vm.network :forwarded_port, guest: "15673", host: "#{5673 + 10000 * (i + 1)}" # HAProxy
         conf.vm.network :private_network, ip: "10.0.0.#{ip_start + i}"
         conf.vm.network :private_network, ip: "10.0.1.#{ip_start + i}"
         conf.vm.network :public_network,  ip: "0.0.0.0", bridge: "eno1"

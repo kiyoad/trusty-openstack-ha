@@ -35,3 +35,8 @@ mysql_port: 13306 # default 3306
 rabbitmq_user: clusteruser
 rabbitmq_password: Passw0rd
 rabbitmq_port: 5673 # default: 5672
+
+haproxy_stats_port: 15673
+haproxy_stats_user: clusteruser
+haproxy_stats_pass: Passw0rd
+
