@@ -1,0 +1,18 @@
+---
+# Setup OpenStack kilo repository
+
+- name: Install the Ubuntu Cloud archive keyring
+  apt: name=ubuntu-cloud-keyring
+
+- name: Check the Ubuntu Cloud archive repository
+  shell: test -f /etc/apt/sources.list.d/cloudarchive-kilo.list
+  register: is_exist
+  ignore_errors: True
+
+- name: Install the Ubuntu Cloud archive repository
+  copy: src=cloudarchive-kilo.list dest=/etc/apt/sources.list.d/cloudarchive-kilo.list
+  when: is_exist|failed
+
+- name: Upgrade the packages
+  shell: apt-get update && apt-get dist-upgrade -y
+  when: is_exist|failed
