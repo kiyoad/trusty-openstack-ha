@@ -1,0 +1,13 @@
+---
+# OpenStack common settings
+
+- name: Install the Python MySQL library
+  apt: name=python-mysqldb
+
+- name: Install pip
+  apt: name=python-pip
+
+- name: Install crudini
+  shell: pip install crudini
+  args:
+    creates: /usr/local/bin/crudini
