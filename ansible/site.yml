@@ -3,3 +3,4 @@
 
 - include: cluster.yml
 - include: starter.yml
+- include: openstack.yml
