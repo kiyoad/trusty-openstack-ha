@@ -8,6 +8,4 @@
   apt: name=python-pip
 
 - name: Install crudini
-  shell: pip install crudini
-  args:
-    creates: /usr/local/bin/crudini
+  pip: name=crudini
