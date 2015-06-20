@@ -8,6 +8,7 @@
   shell: test -f /etc/apt/sources.list.d/cloudarchive-kilo.list
   register: is_exist
   ignore_errors: True
+  changed_when: False
 
 - name: Install the Ubuntu Cloud archive repository
   copy: src=cloudarchive-kilo.list dest=/etc/apt/sources.list.d/cloudarchive-kilo.list

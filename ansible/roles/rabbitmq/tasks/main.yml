@@ -5,6 +5,7 @@
   shell: test -x /usr/sbin/rabbitmq-server
   register: is_exist
   ignore_errors: True
+  changed_when: False
 
 - name: Create RabbitMQ configuration directory
   file: path=/etc/rabbitmq state=directory owner=root group=root mode=0755
