@@ -40,3 +40,17 @@ haproxy_stats_port: 15673
 haproxy_stats_user: clusteruser
 haproxy_stats_pass: Passw0rd
 
+
+# OpenStack settings
+
+openstack_database_ip: "{{ cluster_virtual_ip }}"
+database_root_password: "{{ mysql_root_password }}"
+
+openstack_admin_password: openstack
+openstack_demo_password: openstack
+
+keystone_ip: "{{ cluster_virtual_ip }}"
+keystone_db_password: KEYSTONE_DBPASS
+keystone_admin_token: ADMIN_TOKEN
+keystone_admin_port: 35358 # default: 35357
+keystone_public_port: 5001 # default: 5000

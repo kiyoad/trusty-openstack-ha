@@ -7,6 +7,7 @@
     - sv3
   roles:
     - openstack-common
+    - keystone
   sudo: yes
   tags:
     - openstack

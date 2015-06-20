@@ -1,0 +1,144 @@
+---
+# Install Keystone
+
+- name: Create Keystone DB
+  mysql_db:
+    login_host: "{{ openstack_database_ip }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    name: keystone
+    state: present
+  when: require_db_settings
+
+- name: Add user to DB
+  mysql_user:
+    login_port: "{{ mysql_port }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    host: "{{ item }}"
+    user: keystone
+    password: "{{ keystone_db_password }}"
+    priv: "keystone.*:ALL"
+  with_items:
+    - "localhost"
+    - "%"
+  when: require_db_settings
+
+- name: Disable the keystone service from starting automatically after installation.
+  shell: echo "manual" > /etc/init/keystone.override
+  args:
+    creates: /etc/init/keystone.override
+
+- name: Install Keystone packages
+  apt: name="{{ item }}"
+  with_items:
+    - keystone
+    - python-openstackclient
+    - apache2
+    - libapache2-mod-wsgi
+    - memcached
+    - python-memcache
+
+- name: Set Keystone configuration
+  shell: |
+    cp /etc/keystone/keystone.conf /etc/keystone/keystone.conf.prev
+    crudini --set /etc/keystone/keystone.conf DEFAULT admin_token {{ keystone_admin_token }}
+    crudini --set /etc/keystone/keystone.conf database connection mysql://keystone:{{ keystone_db_password }}@{{ openstack_database_ip }}/keystone
+    crudini --set /etc/keystone/keystone.conf memcache servers localhost:11211
+    crudini --set /etc/keystone/keystone.conf token provider keystone.token.providers.uuid.Provider
+    crudini --set /etc/keystone/keystone.conf token driver keystone.token.persistence.backends.memcache.Token
+    crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.backends.sql.Revoke
+    crudini --set /etc/keystone/keystone.conf DEFAULT verbose true
+    crudini --set /etc/keystone/keystone.conf DEFAULT debug true
+  changed_when: False
+
+- name: Check Keystone configuration modification
+  shell: diff -u /etc/keystone/keystone.conf.prev /etc/keystone/keystone.conf
+  register: equal
+  ignore_errors: True
+  changed_when: equal|failed
+  notify:
+    - Restart Keystone
+
+- name: Check Keystone DB table existence
+  shell: mysql -h {{ openstack_database_ip }} -uroot -p{{ mysql_root_password }} keystone -e "show tables;" | grep -q keystone
+  register: is_table_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Populate the Identity service database
+  shell: keystone-manage db_sync
+  sudo_user: keystone
+  when: require_db_settings and is_table_exist|failed
+
+- name: Install apache2.conf
+  template: src=apache2.conf.j2 dest=/etc/apache2/apache2.conf
+  notify:
+    - Restart Keystone
+
+- name: Install wsgi-keystone.conf
+  template: src=wsgi-keystone.conf.j2 dest=/etc/apache2/sites-available/wsgi-keystone.conf
+  notify:
+    - Restart Keystone
+
+- name: Enable the Identity service virtual hosts
+  file: src=/etc/apache2/sites-available/wsgi-keystone.conf dest=/etc/apache2/sites-enabled/wsgi-keystone.conf state=link
+
+- name: Create the directory structure for the WSGI components
+  file: path=/var/www/cgi-bin/keystone state=directory mode=0755
+
+- name: Install the WSGI components
+  copy: src={{ item }} dest=/var/www/cgi-bin/keystone/{{ item }} owner=keystone group=keystone mode=0755
+  with_items:
+    - main
+    - admin
+  notify:
+    - Restart Keystone
+
+- name: Remove unused SQLite database
+  file: path=/var/lib/keystone/keystone.db state=absent
+
+- name: Restart Keystone now if we populate the Identity service database
+  service: name=apache2 enabled=yes state=restarted
+  when: require_db_settings and is_table_exist|failed
+
+- name: Wait Keystone if we populate the Identity service database
+  wait_for: port={{ keystone_admin_port }} delay=5
+  when: require_db_settings and is_table_exist|failed
+
+- name: Check admin user existence
+  shell: openstack --os-token {{ keystone_admin_token }} --os-url http://{{ keystone_ip }}:35357/v2.0 user list | grep -q admin
+  register: is_admin_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Add admin,guest and service tenant info
+  shell: |
+    export OS_TOKEN={{ keystone_admin_token }}
+    export OS_URL=http://{{ keystone_ip }}:35357/v2.0
+    openstack service create --name keystone --description "OpenStack Identity" identity
+    openstack endpoint create --publicurl http://{{ keystone_ip }}:5000/v2.0 --internalurl http://{{ keystone_ip }}:5000/v2.0 --adminurl http://{{ keystone_ip }}:35357/v2.0 --region RegionOne identity
+    openstack project create --description "Admin Project" admin
+    openstack user create --project admin --password {{ openstack_admin_password }} admin
+    openstack role create admin
+    openstack role add --project admin --user admin admin
+    openstack project create --description "Service Project" service
+    openstack project create --description "Demo Project" demo
+    openstack user create --project demo --password {{ openstack_demo_password }} demo
+    openstack role create user
+    openstack role add --project demo --user demo user
+  when: require_db_settings and is_admin_exist|failed
+  changed_when: False
+
+# For security reasons, disable the temporary authentication token mechanism
+# Edit the /etc/keystone/keystone-paste.ini file and remove
+# admin_token_auth from the [pipeline:public_api],
+# [pipeline:admin_api], and [pipeline:api_v3] sections.
+# http://docs.openstack.org/kilo/install-guide/install/apt/content/keystone-verify.html
+#
+#- name: Disable the temporary authentication token mechanism
+#  copy: src=keystone-paste.ini dest=/etc/keystone/keystone-paste.ini
+#  notify:
+#    - Restart Keystone

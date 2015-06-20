@@ -38,7 +38,7 @@ listen mysql
     bind {{ cluster_virtual_ip }}:3306
     mode tcp
     option mysql-check user haproxy
-    balance roundrobin
+    balance source
     # mysql -h {{ cluster_virtual_ip }} -uroot -p<pass> -e "show variables like 'hostname'"
     server sv2 {{cluster_server_ips[1]}}:{{ mysql_port }} check port {{ mysql_port }} inter 5000 fall 2
     server sv3 {{cluster_server_ips[2]}}:{{ mysql_port }} check port {{ mysql_port }} inter 5000 fall 2 backup
@@ -47,10 +47,30 @@ listen mysql
 listen rabbitmq
     bind {{ cluster_virtual_ip }}:5672
     mode tcp
-    balance roundrobin
+    balance source
     timeout client 3h
     timeout server 3h
     option clitcpka
     server sv3 {{cluster_server_ips[2]}}:{{ rabbitmq_port }} check inter 5000 rise 2 fall 3
     server sv1 {{cluster_server_ips[0]}}:{{ rabbitmq_port }} check inter 5000 rise 2 fall 3 backup
     server sv2 {{cluster_server_ips[1]}}:{{ rabbitmq_port }} check inter 5000 rise 2 fall 3 backup
+
+listen keystone_admin_cluster
+    bind {{ cluster_virtual_ip }}:35357
+    balance source
+    option tcpka
+    option httpchk
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ keystone_admin_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ keystone_admin_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ keystone_admin_port }} check inter 2000 rise 2 fall 5 backup
+
+listen keystone_public_internal_cluster
+    bind {{ cluster_virtual_ip }}:5000
+    balance source
+    option tcpka
+    option httpchk
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ keystone_public_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ keystone_public_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ keystone_public_port }} check inter 2000 rise 2 fall 5 backup

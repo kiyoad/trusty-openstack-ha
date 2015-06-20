@@ -1,0 +1,5 @@
+---
+# Keystone handler
+
+- name: Restart Keystone
+  service: name=apache2 enabled=yes state=restarted
