@@ -4,9 +4,11 @@
 - hosts: starter
   roles:
     - add-percona-repo
+    - add-openstack-kilo-repo
     - common
     - starter
     - ceph-deployer
     - xtradb-starter
     - rabbitmq-starter
+    - corosync-pacemaker-starter
   sudo: yes

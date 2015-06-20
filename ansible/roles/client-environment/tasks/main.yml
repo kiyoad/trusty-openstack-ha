@@ -1,0 +1,14 @@
+---
+# OpenStack client environment setup
+
+- name: Install OpenStack client
+  apt: name=python-openstackclient
+
+- name: Create OpenStack utility script directory
+  file: path=/home/vagrant/openstack state=directory owner=vagrant group=vagrant mode=0755
+
+- name: Install the script for admin
+  template: src=admin-openrc.sh.j2 dest=/home/vagrant/openstack/admin-openrc.sh owner=vagrant group=vagrant mode=0644
+
+- name: Install the script for demo
+  template: src=demo-openrc.sh.j2 dest=/home/vagrant/openstack/demo-openrc.sh owner=vagrant group=vagrant mode=0644

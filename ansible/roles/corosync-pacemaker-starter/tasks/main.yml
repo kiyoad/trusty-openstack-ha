@@ -2,7 +2,7 @@
 # Install Corosync/Pacemaker utility script
 
 - name: Create Corosync/Pacemaker utility script directory
-  file: path=/home/vagrant/corosync-pacemaker owner=vagrant group=vagrant mode=0755
+  file: path=/home/vagrant/corosync-pacemaker state=directory owner=vagrant group=vagrant mode=0755
 
 - name: Install clear Pacemaker settings script
   copy: src=reset-cib.sh dest=/home/vagrant/corosync-pacemaker/reset-cib.sh owner=vagrant group=vagrant mode=0700

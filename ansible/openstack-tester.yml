@@ -1,0 +1,9 @@
+---
+# OpenStack tester
+
+- hosts: starter
+  roles:
+    - client-environment
+  sudo: yes
+  tags:
+    - openstack
