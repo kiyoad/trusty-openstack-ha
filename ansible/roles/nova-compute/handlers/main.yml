@@ -1,0 +1,6 @@
+---
+# Nova compute handler
+
+- name: Restart Nova compute
+# shell: initctl restart nova-compute
+  shell: service nova-compute restart

@@ -1,5 +1,5 @@
 ---
-# Install Nova
+# Install Nova controller
 
 - name: Create Nova DB
   mysql_db:
@@ -103,6 +103,7 @@
   changed_when: equal|failed
   notify:
     - Restart Nova
+    - Restart Nova compute
 
 - name: Check Nova DB table existence
   shell: mysql -h {{ openstack_database_ip }} -uroot -p{{ mysql_root_password }} nova -e "show tables;" | grep -q nova

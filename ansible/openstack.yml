@@ -10,6 +10,7 @@
     - keystone
     - glance
     - nova
+    - nova-compute
   sudo: yes
   tags:
     - openstack
