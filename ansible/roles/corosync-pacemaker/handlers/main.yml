@@ -8,5 +8,5 @@
   service: name=pacemaker enabled=yes state=restarted
 
 - name: Register CRM
-  shell: crm configure load update /tmp/cluster.crm
+  shell: crm configure load update /root/cluster.crm
   when: require_crm_settings

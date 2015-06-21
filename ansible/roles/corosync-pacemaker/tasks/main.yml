@@ -5,10 +5,10 @@
   apt: name=pacemaker
 
 - name: Put libqb0 deb package
-  copy: src=libqb0_0.17.1-3_amd64.deb dest=/tmp/libqb0_0.17.1-3_amd64.deb
+  copy: src=libqb0_0.17.1-3_amd64.deb dest=/root/libqb0_0.17.1-3_amd64.deb
 
 - name: Update libqb0
-  apt: deb=/tmp/libqb0_0.17.1-3_amd64.deb
+  apt: deb=/root/libqb0_0.17.1-3_amd64.deb
 
 - name: Install Corosync configuration
   template: src=corosync.conf.j2 dest=/etc/corosync/corosync.conf
@@ -20,6 +20,6 @@
   copy: src=corosync dest=/etc/default/corosync
 
 - name: Install crm settings
-  template: src=cluster.crm.j2 dest=/tmp/cluster.crm
+  template: src=cluster.crm.j2 dest=/root/cluster.crm
   notify: Register CRM
   when: require_crm_settings
