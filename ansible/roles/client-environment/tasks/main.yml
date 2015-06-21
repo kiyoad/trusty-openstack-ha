@@ -12,3 +12,6 @@
 
 - name: Install the script for demo
   template: src=demo-openrc.sh.j2 dest=/home/vagrant/openstack/demo-openrc.sh owner=vagrant group=vagrant mode=0644
+
+- name: Install to prepare the ceph script
+  template: src=prepare-ceph.sh.j2 dest=/home/vagrant/openstack/prepare-ceph.sh owner=vagrant group=vagrant mode=0755

@@ -1,0 +1,128 @@
+---
+# Install Glance
+
+- name: Create Glance DB
+  mysql_db:
+    login_host: "{{ openstack_database_ip }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    name: glance
+    state: present
+  when: require_db_settings
+
+- name: Add user to DB
+  mysql_user:
+    login_port: "{{ mysql_port }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    host: "{{ item }}"
+    user: glance
+    password: "{{ glance_db_password }}"
+    priv: "glance.*:ALL"
+  with_items:
+    - "localhost"
+    - "%"
+  when: require_db_settings
+
+- name: Check Glance user existence
+  shell: |
+    export OS_PROJECT_DOMAIN_ID=default
+    export OS_USER_DOMAIN_ID=default
+    export OS_PROJECT_NAME=admin
+    export OS_TENANT_NAME=admin
+    export OS_USERNAME=admin
+    export OS_PASSWORD={{ openstack_admin_password }}
+    export OS_AUTH_URL=http://{{ keystone_ip }}:35357/v3
+    openstack user list | grep -q glance
+  register: is_glance_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Add Glance user,role,service and endpoint
+  shell: |
+    export OS_PROJECT_DOMAIN_ID=default
+    export OS_USER_DOMAIN_ID=default
+    export OS_PROJECT_NAME=admin
+    export OS_TENANT_NAME=admin
+    export OS_USERNAME=admin
+    export OS_PASSWORD={{ openstack_admin_password }}
+    export OS_AUTH_URL=http://{{ keystone_ip }}:35357/v3
+    openstack user create --project service --password {{ glance_password }} glance
+    openstack role add --project service --user glance admin
+    openstack service create --name glance --description "OpenStack Image service" image
+    openstack endpoint create --publicurl http://{{ glance_ip }}:9292 --internalurl http://{{ glance_ip }}:9292 --adminurl http://{{ glance_ip }}:9292 --region RegionOne image
+  when: require_db_settings and is_glance_exist|failed
+  changed_when: False
+
+- name: Install Glance packages
+  apt: name="{{ item }}"
+  with_items:
+    - glance
+    - python-glanceclient
+    - python-rbd
+
+- name: Set Glance configuration
+  shell: |
+    cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.prev
+    crudini --set /etc/glance/glance-api.conf      DEFAULT debug True
+    crudini --set /etc/glance/glance-api.conf      DEFAULT verbose True
+    crudini --set /etc/glance/glance-api.conf      DEFAULT bind_port {{ glance_api_port }}
+    crudini --set /etc/glance/glance-api.conf      database connection mysql://glance:{{ glance_db_password }}@{{ openstack_database_ip }}/glance
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken auth_plugin password
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken project_domain_id default
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken user_domain_id default
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken project_name service
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken username glance
+    crudini --set /etc/glance/glance-api.conf      keystone_authtoken password {{ glance_password }}
+    crudini --set /etc/glance/glance-api.conf      paste_deploy flavor keystone
+    crudini --set /etc/glance/glance-api.conf      glance_store default_store rbd
+    crudini --set /etc/glance/glance-api.conf      glance_store stores rbd
+    crudini --set /etc/glance/glance-api.conf      glance_store rbd_store_pool images
+    crudini --set /etc/glance/glance-api.conf      glance_store rbd_store_user glance
+    crudini --set /etc/glance/glance-api.conf      glance_store rbd_store_ceph_conf /etc/ceph/ceph.conf
+    crudini --set /etc/glance/glance-api.conf      glance_store rbd_store_chunk_size 8
+    crudini --set /etc/glance/glance-api.conf      DEFAULT show_image_direct_url True
+    crudini --set /etc/glance/glance-api.conf      DEFAULT notification_driver noop
+    cp /etc/glance/glance-registry.conf /etc/glance/glance-registry.conf.prev
+    crudini --set /etc/glance/glance-registry.conf DEFAULT debug True
+    crudini --set /etc/glance/glance-registry.conf DEFAULT verbose True
+    crudini --set /etc/glance/glance-registry.conf DEFAULT bind_port {{ glance_registry_port }}
+    crudini --set /etc/glance/glance-registry.conf database connection mysql://glance:{{ glance_db_password }}@{{ openstack_database_ip }}/glance
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_plugin password
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken project_domain_id default
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken user_domain_id default
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken project_name service
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken username glance
+    crudini --set /etc/glance/glance-registry.conf keystone_authtoken password {{ glance_password }}
+    crudini --set /etc/glance/glance-registry.conf paste_deploy flavor keystone
+    crudini --set /etc/glance/glance-registry.conf DEFAULT notification_driver noop
+  changed_when: False
+
+- name: Check Glance configuration modification
+  shell: diff -u /etc/glance/glance-api.conf.prev /etc/glance/glance-api.conf && diff -u /etc/glance/glance-registry.conf.prev /etc/glance/glance-registry.conf
+  register: equal
+  ignore_errors: True
+  changed_when: equal|failed
+  notify:
+    - Restart Glance
+
+- name: Check Glance DB table existence
+  shell: mysql -h {{ openstack_database_ip }} -uroot -p{{ mysql_root_password }} glance -e "show tables;" | grep -q glance
+  register: is_table_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Populate the Image service database
+  shell: glance-manage db_sync
+  sudo_user: glance
+  when: require_db_settings and is_table_exist|failed
+
+- name: Remove unused SQLite database
+  file: path=/var/lib/glance/glance.sqlite state=absent
+  ignore_errors: True

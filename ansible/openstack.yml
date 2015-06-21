@@ -8,6 +8,7 @@
   roles:
     - openstack-common
     - keystone
+    - glance
   sudo: yes
   tags:
     - openstack

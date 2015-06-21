@@ -1,0 +1,5 @@
+---
+# Glance handler
+
+- name: Restart Glance
+  shell: initctl restart glance-registry && initctl restart glance-api

@@ -54,3 +54,9 @@ keystone_db_password: KEYSTONE_DBPASS
 keystone_admin_token: ADMIN_TOKEN
 keystone_admin_port: 35358 # default: 35357
 keystone_public_port: 5001 # default: 5000
+
+glance_ip: "{{ cluster_virtual_ip }}"
+glance_db_password: GLANCE_DBPASS
+glance_password: GLANCE_PASS
+glance_api_port: 9293 # default: 9292
+glance_registry_port: 9192 # default: 9191

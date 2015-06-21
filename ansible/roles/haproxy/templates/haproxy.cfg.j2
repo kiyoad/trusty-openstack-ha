@@ -74,3 +74,22 @@ listen keystone_public_internal_cluster
     server sv1 {{cluster_server_ips[0]}}:{{ keystone_public_port }} check inter 2000 rise 2 fall 5
     server sv2 {{cluster_server_ips[1]}}:{{ keystone_public_port }} check inter 2000 rise 2 fall 5 backup
     server sv3 {{cluster_server_ips[2]}}:{{ keystone_public_port }} check inter 2000 rise 2 fall 5 backup
+
+listen glance_api_cluster
+    bind {{ cluster_virtual_ip }}:9292
+    balance source
+    option tcpka
+    option httpchk
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ glance_api_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ glance_api_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ glance_api_port }} check inter 2000 rise 2 fall 5 backup
+
+listen glance_registry_cluster
+    bind {{ cluster_virtual_ip }}:9191
+    balance source
+    option tcpka
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ glance_registry_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ glance_registry_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ glance_registry_port }} check inter 2000 rise 2 fall 5 backup

@@ -1,0 +1,56 @@
+#!/bin/bash
+set -eux
+
+ceph osd pool create volumes 32
+ceph osd pool create images 32
+ceph osd pool create backups 32
+ceph osd pool create vms 32
+
+ceph auth get-or-create client.cinder mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=volumes, allow rwx pool=vms, allow rx pool=images'
+ceph auth get-or-create client.glance mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=images'
+ceph auth get-or-create client.cinder-backup mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=backups'
+
+ceph auth get-or-create client.glance | ssh sv1 sudo tee /etc/ceph/ceph.client.glance.keyring
+ceph auth get-or-create client.glance | ssh sv2 sudo tee /etc/ceph/ceph.client.glance.keyring
+ceph auth get-or-create client.glance | ssh sv3 sudo tee /etc/ceph/ceph.client.glance.keyring
+
+ssh sv1 sudo chown glance:glance /etc/ceph/ceph.client.glance.keyring
+ssh sv2 sudo chown glance:glance /etc/ceph/ceph.client.glance.keyring
+ssh sv3 sudo chown glance:glance /etc/ceph/ceph.client.glance.keyring
+
+ceph auth get-or-create client.cinder | ssh sv1 sudo tee /etc/ceph/ceph.client.cinder.keyring
+ceph auth get-or-create client.cinder | ssh sv2 sudo tee /etc/ceph/ceph.client.cinder.keyring
+ceph auth get-or-create client.cinder | ssh sv3 sudo tee /etc/ceph/ceph.client.cinder.keyring
+
+ssh sv1 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
+ssh sv2 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
+ssh sv3 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
+
+ceph auth get-or-create client.cinder-backup | ssh sv1 sudo tee /etc/ceph/ceph.client.cinder-backup.keyring
+ceph auth get-or-create client.cinder-backup | ssh sv2 sudo tee /etc/ceph/ceph.client.cinder-backup.keyring
+ceph auth get-or-create client.cinder-backup | ssh sv3 sudo tee /etc/ceph/ceph.client.cinder-backup.keyring
+
+ssh sv1 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder-backup.keyring
+ssh sv2 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder-backup.keyring
+ssh sv3 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder-backup.keyring
+
+# ceph auth get-key client.cinder | ssh sv1 tee client.cinder.key
+# ceph auth get-key client.cinder | ssh sv2 tee client.cinder.key
+# ceph auth get-key client.cinder | ssh sv3 tee client.cinder.key
+
+# uuidgen
+# 457eb676-33da-42ec-9a8c-9293d545c337
+
+# cat > secret.xml <<EOF
+# <secret ephemeral='no' private='no'>
+#   <uuid>457eb676-33da-42ec-9a8c-9293d545c337</uuid>
+#   <usage type='ceph'>
+#     <name>client.cinder secret</name>
+#   </usage>
+# </secret>
+# EOF
+# sudo virsh secret-define --file secret.xml
+# Secret 457eb676-33da-42ec-9a8c-9293d545c337 created
+# sudo virsh secret-set-value --secret 457eb676-33da-42ec-9a8c-9293d545c337 --base64 $(cat client.cinder.key) && rm client.cinder.key secret.xml
+
+
