@@ -9,6 +9,7 @@
     - openstack-common
     - keystone
     - glance
+    - nova
   sudo: yes
   tags:
     - openstack

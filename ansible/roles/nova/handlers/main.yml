@@ -1,0 +1,11 @@
+---
+# Nova handler
+
+- name: Restart Nova
+  shell: >-
+    initctl restart nova-api &&
+    initctl restart nova-cert &&
+    initctl restart nova-consoleauth &&
+    initctl restart nova-scheduler &&
+    initctl restart nova-conductor &&
+    initctl restart nova-novncproxy

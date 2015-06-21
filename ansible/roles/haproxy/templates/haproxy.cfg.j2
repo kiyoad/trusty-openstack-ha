@@ -93,3 +93,40 @@ listen glance_registry_cluster
     server sv1 {{cluster_server_ips[0]}}:{{ glance_registry_port }} check inter 2000 rise 2 fall 5
     server sv2 {{cluster_server_ips[1]}}:{{ glance_registry_port }} check inter 2000 rise 2 fall 5 backup
     server sv3 {{cluster_server_ips[2]}}:{{ glance_registry_port }} check inter 2000 rise 2 fall 5 backup
+
+listen nova_ec2_api_cluster
+    bind {{ cluster_virtual_ip }}:8773
+    balance source
+    option tcpka
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ nova_ec2_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ nova_ec2_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ nova_ec2_port }} check inter 2000 rise 2 fall 5 backup
+
+listen nova_compute_api_cluster
+    bind {{ cluster_virtual_ip }}:8774
+    balance source
+    option tcpka
+    option httpchk
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ nova_compute_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ nova_compute_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ nova_compute_port }} check inter 2000 rise 2 fall 5 backup
+
+listen nova_metadata_api_cluster
+    bind {{ cluster_virtual_ip }}:8775
+    balance source
+    option tcpka
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ nova_metadata_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ nova_metadata_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ nova_metadata_port }} check inter 2000 rise 2 fall 5 backup
+
+listen novncproxy_cluster
+    bind {{ cluster_virtual_ip }}:6080
+    balance source
+    option tcpka
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ nova_novncproxy_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ nova_novncproxy_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ nova_novncproxy_port }} check inter 2000 rise 2 fall 5 backup

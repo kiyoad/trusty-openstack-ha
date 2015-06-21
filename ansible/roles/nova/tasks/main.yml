@@ -1,0 +1,121 @@
+---
+# Install Nova
+
+- name: Create Nova DB
+  mysql_db:
+    login_host: "{{ openstack_database_ip }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    name: nova
+    state: present
+  when: require_db_settings
+
+- name: Add user to DB
+  mysql_user:
+    login_port: "{{ mysql_port }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    host: "{{ item }}"
+    user: nova
+    password: "{{ nova_db_password }}"
+    priv: "nova.*:ALL"
+  with_items:
+    - "localhost"
+    - "%"
+  when: require_db_settings
+
+- name: Check Nova user existence
+  shell: |
+    export OS_PROJECT_DOMAIN_ID=default
+    export OS_USER_DOMAIN_ID=default
+    export OS_PROJECT_NAME=admin
+    export OS_TENANT_NAME=admin
+    export OS_USERNAME=admin
+    export OS_PASSWORD={{ openstack_admin_password }}
+    export OS_AUTH_URL=http://{{ keystone_ip }}:35357/v3
+    openstack user list | grep -q nova
+  register: is_nova_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Add Nova user,role,service and endpoint
+  shell: |
+    export OS_PROJECT_DOMAIN_ID=default
+    export OS_USER_DOMAIN_ID=default
+    export OS_PROJECT_NAME=admin
+    export OS_TENANT_NAME=admin
+    export OS_USERNAME=admin
+    export OS_PASSWORD={{ openstack_admin_password }}
+    export OS_AUTH_URL=http://{{ keystone_ip }}:35357/v3
+    openstack user create --project service --password {{ nova_password }} nova
+    openstack role add --project service --user nova admin
+    openstack service create --name nova --description "OpenStack Compute" compute
+    openstack endpoint create --publicurl http://{{ nova_ip }}:8774/v2/%\(tenant_id\)s --internalurl http://{{ nova_ip }}:8774/v2/%\(tenant_id\)s --adminurl http://{{ nova_ip }}:8774/v2/%\(tenant_id\)s --region RegionOne compute
+  when: require_db_settings and is_nova_exist|failed
+  changed_when: False
+
+- name: Install Nova packages
+  apt: name="{{ item }}"
+  with_items:
+    - nova-api
+    - nova-cert
+    - nova-conductor
+    - nova-consoleauth
+    - nova-novncproxy
+    - nova-scheduler
+    - python-novaclient
+
+- name: Set Nova configuration
+  shell: |
+    cp /etc/nova/nova.conf /etc/nova/nova.conf.prev
+    crudini --set /etc/nova/nova.conf DEFAULT debug True
+    crudini --set /etc/nova/nova.conf DEFAULT verbose True
+    crudini --set /etc/nova/nova.conf DEFAULT ec2_listen_port {{ nova_ec2_port }}
+    crudini --set /etc/nova/nova.conf DEFAULT osapi_compute_listen_port {{ nova_compute_port }}
+    crudini --set /etc/nova/nova.conf DEFAULT metadata_listen_port {{ nova_metadata_port }}
+    crudini --set /etc/nova/nova.conf DEFAULT novncproxy_port {{ nova_novncproxy_port }}
+    crudini --set /etc/nova/nova.conf database connection mysql://nova:{{ nova_db_password }}@{{ openstack_database_ip }}/nova
+    crudini --set /etc/nova/nova.conf DEFAULT rpc_backend rabbit
+    crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
+    crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}
+    crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_password {{ messaging_password }}
+    crudini --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
+    crudini --set /etc/nova/nova.conf keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
+    crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/nova/nova.conf keystone_authtoken auth_plugin password
+    crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_id default
+    crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_id default
+    crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
+    crudini --set /etc/nova/nova.conf keystone_authtoken username nova
+    crudini --set /etc/nova/nova.conf keystone_authtoken password {{ nova_password }}
+    crudini --set /etc/nova/nova.conf DEFAULT my_ip {{ my_ip }}
+    # vncserver_listen = 10.0.0.11
+    # vncserver_proxyclient_address = 10.0.0.11
+    crudini --set /etc/nova/nova.conf glance host {{ glance_ip }}
+    crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
+  changed_when: False
+
+- name: Check Nova configuration modification
+  shell: diff -u /etc/nova/nova.conf.prev /etc/nova/nova.conf
+  register: equal
+  ignore_errors: True
+  changed_when: equal|failed
+  notify:
+    - Restart Nova
+
+- name: Check Nova DB table existence
+  shell: mysql -h {{ openstack_database_ip }} -uroot -p{{ mysql_root_password }} nova -e "show tables;" | grep -q nova
+  register: is_table_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Populate the Compute database
+  shell: nova-manage db sync
+  sudo_user: nova
+  when: require_db_settings and is_table_exist|failed
+
+- name: Remove unused SQLite database
+  file: path=/var/lib/nova/nova.sqlite state=absent
+  ignore_errors: True
