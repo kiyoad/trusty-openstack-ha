@@ -68,6 +68,7 @@
     crudini --set /etc/glance/glance-api.conf      DEFAULT debug True
     crudini --set /etc/glance/glance-api.conf      DEFAULT verbose True
     crudini --set /etc/glance/glance-api.conf      DEFAULT bind_port {{ glance_api_port }}
+    crudini --set /etc/glance/glance-api.conf      DEFAULT registry_host {{ glance_ip }}
     crudini --set /etc/glance/glance-api.conf      database connection mysql://glance:{{ glance_db_password }}@{{ openstack_database_ip }}/glance
     crudini --set /etc/glance/glance-api.conf      keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
     crudini --set /etc/glance/glance-api.conf      keystone_authtoken auth_url http://{{ keystone_ip }}:35357
