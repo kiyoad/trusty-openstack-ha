@@ -1,0 +1,5 @@
+---
+# Neutron handler
+
+- name: Restart Neutron
+  shell: initctl restart neutron-server

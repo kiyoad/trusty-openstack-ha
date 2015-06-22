@@ -46,6 +46,16 @@
     crudini --set /etc/nova/nova-compute.conf libvirt live_migration_flag "VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE,VIR_MIGRATE_PERSIST_DEST,VIR_MIGRATE_TUNNELLED"
     # enable discard support (be careful of performance)
     crudini --set /etc/nova/nova-compute.conf libvirt hw_disk_discard unmap
+    crudini --set /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API
+    crudini --set /etc/nova/nova.conf DEFAULT security_group_api neutron
+    crudini --set /etc/nova/nova.conf DEFAULT linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
+    crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+    crudini --set /etc/nova/nova.conf neutron url http://{{ neutron_ip }}:9696
+    crudini --set /etc/nova/nova.conf neutron auth_strategy keystone
+    crudini --set /etc/nova/nova.conf neutron admin_auth_url http://{{ keystone_ip }}:35357/v2.0
+    crudini --set /etc/nova/nova.conf neutron admin_tenant_name service
+    crudini --set /etc/nova/nova.conf neutron admin_username neutron
+    crudini --set /etc/nova/nova.conf neutron admin_password {{ neutron_password }}
   changed_when: False
 
 - name: Check Nova configuration modification

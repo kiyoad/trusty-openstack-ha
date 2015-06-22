@@ -130,3 +130,13 @@ listen novncproxy_cluster
     server sv1 {{cluster_server_ips[0]}}:{{ nova_novncproxy_port }} check inter 2000 rise 2 fall 5
     server sv2 {{cluster_server_ips[1]}}:{{ nova_novncproxy_port }} check inter 2000 rise 2 fall 5 backup
     server sv3 {{cluster_server_ips[2]}}:{{ nova_novncproxy_port }} check inter 2000 rise 2 fall 5 backup
+
+listen neutron_api_cluster
+    bind {{ cluster_virtual_ip }}:9696
+    balance source
+    option tcpka
+    option httpchk
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ neutron_api_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ neutron_api_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ neutron_api_port }} check inter 2000 rise 2 fall 5 backup

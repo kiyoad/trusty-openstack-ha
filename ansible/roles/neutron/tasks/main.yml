@@ -1,0 +1,127 @@
+---
+# Install Neutron controller
+
+- name: Create Neutron DB
+  mysql_db:
+    login_host: "{{ openstack_database_ip }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    name: neutron
+    state: present
+  when: require_db_settings
+
+- name: Add user to DB
+  mysql_user:
+    login_port: "{{ mysql_port }}"
+    login_user: root
+    login_password: "{{ database_root_password }}"
+    host: "{{ item }}"
+    user: neutron
+    password: "{{ neutron_db_password }}"
+    priv: "neutron.*:ALL"
+  with_items:
+    - "localhost"
+    - "%"
+  when: require_db_settings
+
+- name: Check Neutron user existence
+  shell: |
+    export OS_PROJECT_DOMAIN_ID=default
+    export OS_USER_DOMAIN_ID=default
+    export OS_PROJECT_NAME=admin
+    export OS_TENANT_NAME=admin
+    export OS_USERNAME=admin
+    export OS_PASSWORD={{ openstack_admin_password }}
+    export OS_AUTH_URL=http://{{ keystone_ip }}:35357/v3
+    openstack user list | grep -q neutron
+  register: is_neutron_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Add Neutron user,role,service and endpoint
+  shell: |
+    export OS_PROJECT_DOMAIN_ID=default
+    export OS_USER_DOMAIN_ID=default
+    export OS_PROJECT_NAME=admin
+    export OS_TENANT_NAME=admin
+    export OS_USERNAME=admin
+    export OS_PASSWORD={{ openstack_admin_password }}
+    export OS_AUTH_URL=http://{{ keystone_ip }}:35357/v3
+    openstack user create --project service --password {{ neutron_password }} neutron
+    openstack role add --project service --user neutron admin
+    openstack service create --name neutron --description "OpenStack Networking" network
+    openstack endpoint create --publicurl http://{{ neutron_ip }}:9696 --adminurl http://{{ neutron_ip }}:9696 --internalurl http://{{ neutron_ip }}:9696 --region RegionOne network
+  when: require_db_settings and is_neutron_exist|failed
+  changed_when: False
+
+- name: Install Neutron packages
+  apt: name="{{ item }}"
+  with_items:
+    - neutron-server
+    - neutron-plugin-ml2
+    - python-neutronclient
+
+- name: Set Neutron configuration
+  shell: |
+    cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.prev
+    crudini --set /etc/neutron/neutron.conf DEFAULT debug True
+    crudini --set /etc/neutron/neutron.conf DEFAULT verbose True
+    crudini --set /etc/neutron/neutron.conf DEFAULT bind_port {{ neutron_api_port }}
+    crudini --set /etc/neutron/neutron.conf database connection mysql://neutron:{{ neutron_db_password }}@{{ openstack_database_ip }}/neutron
+    crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
+    crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
+    crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}
+    crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password {{ messaging_password }}
+    crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_plugin password
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_id default
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_id default
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken password {{ neutron_password }}
+    crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+    crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins router
+    crudini --set /etc/neutron/neutron.conf DEFAULT allow_overlapping_ips True
+    crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
+    crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True
+    crudini --set /etc/neutron/neutron.conf DEFAULT nova_url http://{{ nova_ip }}:8774/v2
+    crudini --set /etc/neutron/neutron.conf nova auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/neutron/neutron.conf nova auth_plugin password
+    crudini --set /etc/neutron/neutron.conf nova project_domain_id default
+    crudini --set /etc/neutron/neutron.conf nova user_domain_id default
+    crudini --set /etc/neutron/neutron.conf nova region_name RegionOne
+    crudini --set /etc/neutron/neutron.conf nova project_name service
+    crudini --set /etc/neutron/neutron.conf nova username nova
+    crudini --set /etc/neutron/neutron.conf nova password {{ nova_password }}
+    cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.prev
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,gre,vxlan
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types gre
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 mechanism_drivers openvswitch
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_gre tunnel_id_ranges 1:1000
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_security_group True
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+  changed_when: False
+
+- name: Check Neutron configuration modification
+  shell: diff -u /etc/neutron/neutron.conf.prev /etc/neutron/neutron.conf && diff -u /etc/neutron/plugins/ml2/ml2_conf.ini.prev /etc/neutron/plugins/ml2/ml2_conf.ini
+  register: equal
+  ignore_errors: True
+  changed_when: equal|failed
+  notify:
+    - Restart Neutron
+
+- name: Check Neutron DB table existence
+  shell: mysql -h {{ openstack_database_ip }} -uroot -p{{ mysql_root_password }} neutron -e "show tables;" | grep -q neutron
+  register: is_table_exist
+  ignore_errors: True
+  changed_when: False
+  when: require_db_settings
+
+- name: Populate the Network database
+  shell: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head
+  sudo_user: neutron
+  when: require_db_settings and is_table_exist|failed
