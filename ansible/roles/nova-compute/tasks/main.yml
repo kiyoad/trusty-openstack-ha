@@ -34,6 +34,18 @@
     crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
     cp /etc/nova/nova-compute.conf /etc/nova/nova-compute.conf.prev
     crudini --set /etc/nova/nova-compute.conf libvirt virt_type qemu
+    crudini --set /etc/nova/nova-compute.conf libvirt images_type rbd
+    crudini --set /etc/nova/nova-compute.conf libvirt images_rbd_pool vms
+    crudini --set /etc/nova/nova-compute.conf libvirt images_rbd_ceph_conf /etc/ceph/ceph.conf
+    crudini --set /etc/nova/nova-compute.conf libvirt rbd_user cinder
+    crudini --set /etc/nova/nova-compute.conf libvirt rbd_secret_uuid 57090ca8-c135-4349-b3d1-10d12467e081
+    crudini --set /etc/nova/nova-compute.conf libvirt disk_cachemodes "network=writeback"
+    crudini --set /etc/nova/nova-compute.conf libvirt inject_password false
+    crudini --set /etc/nova/nova-compute.conf libvirt inject_key false
+    crudini --set /etc/nova/nova-compute.conf libvirt inject_partition -2
+    crudini --set /etc/nova/nova-compute.conf libvirt live_migration_flag "VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE,VIR_MIGRATE_PERSIST_DEST,VIR_MIGRATE_TUNNELLED"
+    # enable discard support (be careful of performance)
+    crudini --set /etc/nova/nova-compute.conf libvirt hw_disk_discard unmap
   changed_when: False
 
 - name: Check Nova configuration modification
