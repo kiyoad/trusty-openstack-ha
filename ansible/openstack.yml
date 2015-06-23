@@ -12,6 +12,7 @@
     - nova
     - nova-compute
     - neutron
+    - neutron-networking
   sudo: yes
   tags:
     - openstack

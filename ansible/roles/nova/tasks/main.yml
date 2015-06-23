@@ -94,6 +94,8 @@
     # vncserver_proxyclient_address = 10.0.0.11
     crudini --set /etc/nova/nova.conf glance host {{ glance_ip }}
     crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
+    crudini --set /etc/nova/nova.conf neutron service_metadata_proxy True
+    crudini --set /etc/nova/nova.conf neutron metadata_proxy_shared_secret {{ metadata_proxy_shared_secret }}
   changed_when: False
 
 - name: Check Nova configuration modification

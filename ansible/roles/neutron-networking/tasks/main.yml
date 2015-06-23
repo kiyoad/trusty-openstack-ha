@@ -1,0 +1,127 @@
+---
+# Install Neutron networking
+
+- name: Check kernel networking function
+  shell: grep -q '^net\.ipv4\.conf\.all\.rp_filter' /etc/sysctl.conf
+  register: result
+  ignore_errors: True
+  changed_when: False
+
+- name: Change kernel networking function
+  shell: |
+    echo 'net.ipv4.ip_forward=1'                 >> /etc/sysctl.conf
+    echo 'net.ipv4.conf.all.rp_filter=0'         >> /etc/sysctl.conf
+    echo 'net.ipv4.conf.default.rp_filter=0'     >> /etc/sysctl.conf
+    sysctl -p
+  when: result|failed
+
+- name: Install Neutron packages
+  apt: name="{{ item }}"
+  with_items:
+    - neutron-plugin-ml2
+    - neutron-plugin-openvswitch-agent
+    - neutron-l3-agent
+    - neutron-dhcp-agent
+    - neutron-metadata-agent
+
+- name: Set Neutron configuration
+  shell: |
+    cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.prev
+    crudini --set /etc/neutron/neutron.conf DEFAULT debug True
+    crudini --set /etc/neutron/neutron.conf DEFAULT verbose True
+    crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
+    crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
+    crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}
+    crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password {{ messaging_password }}
+    crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_plugin password
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_id default
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_id default
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
+    crudini --set /etc/neutron/neutron.conf keystone_authtoken password {{ neutron_password }}
+    crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+    crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins router
+    crudini --set /etc/neutron/neutron.conf DEFAULT allow_overlapping_ips True
+    cp  /etc/neutron/plugins/ml2/ml2_conf.ini  /etc/neutron/plugins/ml2/ml2_conf.ini.prev
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,gre,vxlan
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types gre
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 mechanism_drivers openvswitch
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_flat flat_networks external
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_gre tunnel_id_ranges 1:1000
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_security_group True
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ovs local_ip {{ my_ip }}
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ovs bridge_mappings external:br-ex
+    crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini agent tunnel_types gre
+    cp /etc/neutron/l3_agent.ini /etc/neutron/l3_agent.ini.prev
+    crudini --set /etc/neutron/l3_agent.ini DEFAULT debug True
+    crudini --set /etc/neutron/l3_agent.ini DEFAULT verbose True
+    crudini --set /etc/neutron/l3_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
+    crudini --set /etc/neutron/l3_agent.ini DEFAULT external_network_bridge ""
+    crudini --set /etc/neutron/l3_agent.ini DEFAULT router_delete_namespaces True
+    cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.prev
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT debug True
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT verbose True
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dhcp_driver neutron.agent.linux.dhcp.Dnsmasq
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dhcp_delete_namespaces True
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dnsmasq_config_file /etc/neutron/dnsmasq-neutron.conf
+    if [ ! -f /etc/neutron/dnsmasq-neutron.conf ]; then
+      echo 'dhcp-option-force=26,1454' > /etc/neutron/dnsmasq-neutron.conf
+      pkill dnsmasq
+    fi
+    cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.prev
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT debug True
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT verbose True
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_uri http://{{ keystone_ip }}:5000
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_region RegionOne
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_plugin password
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT project_domain_id default
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT user_domain_id default
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT project_name service
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT username neutron
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT password {{ neutron_password }}
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_ip {{ nova_ip }}
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret {{ metadata_proxy_shared_secret }}
+  changed_when: False
+
+- name: Check Neutron configuration modification
+  shell: >-
+    diff -u /etc/neutron/neutron.conf.prev /etc/neutron/neutron.conf &&
+    diff -u /etc/neutron/plugins/ml2/ml2_conf.ini.prev /etc/neutron/plugins/ml2/ml2_conf.ini &&
+    diff -u /etc/neutron/l3_agent.ini.prev  /etc/neutron/l3_agent.ini &&
+    diff -u /etc/neutron/dhcp_agent.ini.prev  /etc/neutron/dhcp_agent.ini &&
+    diff -u /etc/neutron/metadata_agent.ini.prev /etc/neutron/metadata_agent.ini
+  register: equal
+  ignore_errors: True
+  changed_when: equal|failed
+  notify:
+    - Restart Neutron network
+
+- name: Check br-int
+  shell: ovs-vsctl list-br | grep -q br-int
+  register: result
+  ignore_errors: True
+  changed_when: False
+
+- name: Add br-int
+  shell: ovs-vsctl add-br br-int
+  when: result|failed
+
+- name: Check br-ex
+  shell: ovs-vsctl list-br | grep -q br-ex
+  register: result
+  ignore_errors: True
+  changed_when: False
+
+- name: Add br-ex
+  shell: |
+    ovs-vsctl add-br br-ex
+    ovs-vsctl add-port br-ex {{ br_ex_interface }}
+    ethtool -K {{ br_ex_interface }} gro off
+  when: result|failed
