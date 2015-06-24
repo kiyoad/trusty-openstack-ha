@@ -1,0 +1,7 @@
+---
+# Neutron compute handler
+
+- name: Restart Neutron compute
+  shell: >-
+    initctl restart openvswitch-switch &&
+    initctl restart neutron-plugin-openvswitch-agent
