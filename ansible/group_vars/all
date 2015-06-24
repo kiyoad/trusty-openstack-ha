@@ -62,20 +62,20 @@ keystone_public_port: 5001 # default: 5000
 glance_ip: "{{ cluster_virtual_ip }}"
 glance_db_password: GLANCE_DBPASS
 glance_password: GLANCE_PASS
-glance_api_port: 9293 # default: 9292
-glance_registry_port: 9192 # default: 9191
+glance_api_port: 19292 # default: 9292
+glance_registry_port: 19191 # default: 9191
 
 nova_ip: "{{ cluster_virtual_ip }}"
 nova_db_password: NOVA_DBPASS
 nova_password: NOVA_PASS
-nova_ec2_port: 8783 # default: 8773
-nova_compute_port: 8784 # default: 8774
-nova_metadata_port: 8785 # default: 8775
-nova_novncproxy_port: 6090 # default: 6080
+nova_ec2_port: 18773 # default: 8773
+nova_compute_port: 18774 # default: 8774
+nova_metadata_port: 18775 # default: 8775
+nova_novncproxy_port: 16080 # default: 6080
 metadata_proxy_shared_secret: METADATA_SECRET
 
 neutron_ip: "{{ cluster_virtual_ip }}"
 neutron_db_password: NEUTRON_DBPASS
 neutron_password: NEUTRON_PASS
-neutron_api_port: 9697 # default: 9696
+neutron_api_port: 19696 # default: 9696
 br_ex_interface: eth3
