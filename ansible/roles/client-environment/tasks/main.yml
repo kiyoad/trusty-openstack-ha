@@ -15,3 +15,6 @@
 
 - name: Install to prepare the ceph script
   template: src=prepare-ceph.sh.j2 dest=/home/vagrant/openstack/prepare-ceph.sh owner=vagrant group=vagrant mode=0755
+
+- name: Install log clear script
+  copy: src=clear-logs.sh dest=/home/vagrant/openstack/clear-logs.sh owner=vagrant group=vagrant mode=0755
