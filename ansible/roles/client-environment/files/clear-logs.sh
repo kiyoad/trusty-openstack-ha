@@ -1,127 +1,111 @@
 #!/bin/bash
 set -eux
 # Keystone
-ssh sv1 sudo service apache2 stop
-ssh sv1 sudo rm -f /var/log/keystone/*
-ssh sv1 sudo service apache2 start
+function clear_keystone_log {
+    server=$1
+    uid=keystone
+    gid=keystone
+    dmode=0700
+    ssh ${server} ps -ef | fgrep keystone || true
+    ssh ${server} sudo service apache2 stop
+    ssh ${server} ps -ef | fgrep keystone || true
+    sleep 2
+    ssh ${server} sudo rm -rf              /var/log/keystone
+    ssh ${server} sudo mkdir               /var/log/keystone
+    ssh ${server} sudo chown ${uid}:${gid} /var/log/keystone
+    ssh ${server} sudo chmod ${dmode}      /var/log/keystone
+    ssh ${server} sudo service apache2 start
+}
 
-ssh sv2 sudo service apache2 stop
-ssh sv2 sudo rm -f /var/log/keystone/*
-ssh sv2 sudo service apache2 start
-
-ssh sv3 sudo service apache2 stop
-ssh sv3 sudo rm -f /var/log/keystone/*
-ssh sv3 sudo service apache2 start
+clear_keystone_log sv1
+clear_keystone_log sv2
+clear_keystone_log sv3
 
 # Glance
-ssh sv1 sudo initctl stop glance-registry
-ssh sv1 sudo initctl stop glance-api
-ssh sv1 sudo rm -f /var/log/glance/*
-ssh sv1 sudo initctl start glance-registry
-ssh sv1 sudo initctl start glance-api
+function clear_glance_log {
+    server=$1
+    uid=glance
+    gid=adm
+    dmode=0750
+    ssh ${server} ps -ef | fgrep glance || true
+    ssh ${server} sudo initctl stop glance-registry
+    ssh ${server} sudo initctl stop glance-api
+    ssh ${server} ps -ef | fgrep glance || true
+    sleep 2
+    ssh ${server} sudo rm -rf              /var/log/glance
+    ssh ${server} sudo mkdir               /var/log/glance
+    ssh ${server} sudo chown ${uid}:${gid} /var/log/glance
+    ssh ${server} sudo chmod ${dmode}      /var/log/glance
+    ssh ${server} sudo initctl start glance-registry
+    ssh ${server} sudo initctl start glance-api
+}
 
-ssh sv2 sudo initctl stop glance-registry
-ssh sv2 sudo initctl stop glance-api
-ssh sv2 sudo rm -f /var/log/glance/*
-ssh sv2 sudo initctl start glance-registry
-ssh sv2 sudo initctl start glance-api
-
-ssh sv3 sudo initctl stop glance-registry
-ssh sv3 sudo initctl stop glance-api
-ssh sv3 sudo rm -f /var/log/glance/*
-ssh sv3 sudo initctl start glance-registry
-ssh sv3 sudo initctl start glance-api
+clear_glance_log sv1
+clear_glance_log sv2
+clear_glance_log sv3
 
 # Nova
-ssh sv1 sudo initctl stop nova-api
-ssh sv1 sudo initctl stop nova-cert
-ssh sv1 sudo initctl stop nova-consoleauth
-ssh sv1 sudo initctl stop nova-scheduler
-ssh sv1 sudo initctl stop nova-conductor
-ssh sv1 sudo initctl stop nova-novncproxy
-ssh sv1 sudo service nova-compute stop
-ssh sv1 sudo rm -f /var/log/nova/*
-ssh sv1 sudo initctl start nova-api
-ssh sv1 sudo initctl start nova-cert
-ssh sv1 sudo initctl start nova-consoleauth
-ssh sv1 sudo initctl start nova-scheduler
-ssh sv1 sudo initctl start nova-conductor
-ssh sv1 sudo initctl start nova-novncproxy
-ssh sv1 sudo service nova-compute start
+function clear_nova_log {
+    server=$1
+    uid=nova
+    gid=adm
+    dmode=0750
+    ssh ${server} ps -ef | fgrep nova || true
+    ssh ${server} sudo initctl stop nova-api
+    ssh ${server} sudo initctl stop nova-cert
+    ssh ${server} sudo initctl stop nova-consoleauth
+    ssh ${server} sudo initctl stop nova-scheduler
+    ssh ${server} sudo initctl stop nova-conductor
+    ssh ${server} sudo initctl stop nova-novncproxy
+    ssh ${server} sudo service nova-compute stop
+    ssh ${server} ps -ef | fgrep nova || true
+    sleep 2
+    ssh ${server} sudo rm -rf              /var/log/nova
+    ssh ${server} sudo mkdir               /var/log/nova
+    ssh ${server} sudo chown ${uid}:${gid} /var/log/nova
+    ssh ${server} sudo chmod ${dmode}      /var/log/nova
+    ssh ${server} sudo initctl start nova-api
+    ssh ${server} sudo initctl start nova-cert
+    ssh ${server} sudo initctl start nova-consoleauth
+    ssh ${server} sudo initctl start nova-scheduler
+    ssh ${server} sudo initctl start nova-conductor
+    ssh ${server} sudo initctl start nova-novncproxy
+    ssh ${server} sudo service nova-compute start
+}
 
-ssh sv2 sudo initctl stop nova-api
-ssh sv2 sudo initctl stop nova-cert
-ssh sv2 sudo initctl stop nova-consoleauth
-ssh sv2 sudo initctl stop nova-scheduler
-ssh sv2 sudo initctl stop nova-conductor
-ssh sv2 sudo initctl stop nova-novncproxy
-ssh sv2 sudo service nova-compute stop
-ssh sv2 sudo rm -f /var/log/nova/*
-ssh sv2 sudo initctl start nova-api
-ssh sv2 sudo initctl start nova-cert
-ssh sv2 sudo initctl start nova-consoleauth
-ssh sv2 sudo initctl start nova-scheduler
-ssh sv2 sudo initctl start nova-conductor
-ssh sv2 sudo initctl start nova-novncproxy
-ssh sv2 sudo service nova-compute start
-
-ssh sv3 sudo initctl stop nova-api
-ssh sv3 sudo initctl stop nova-cert
-ssh sv3 sudo initctl stop nova-consoleauth
-ssh sv3 sudo initctl stop nova-scheduler
-ssh sv3 sudo initctl stop nova-conductor
-ssh sv3 sudo initctl stop nova-novncproxy
-ssh sv3 sudo service nova-compute stop
-ssh sv3 sudo rm -f /var/log/nova/*
-ssh sv3 sudo initctl start nova-api
-ssh sv3 sudo initctl start nova-cert
-ssh sv3 sudo initctl start nova-consoleauth
-ssh sv3 sudo initctl start nova-scheduler
-ssh sv3 sudo initctl start nova-conductor
-ssh sv3 sudo initctl start nova-novncproxy
-ssh sv3 sudo service nova-compute start
+clear_nova_log sv1
+clear_nova_log sv2
+clear_nova_log sv3
 
 # Neutron
-ssh sv1 sudo initctl stop neutron-server
-ssh sv1 sudo initctl stop openvswitch-switch
-ssh sv1 sudo initctl stop neutron-plugin-openvswitch-agent
-ssh sv1 sudo initctl stop neutron-l3-agent
-ssh sv1 sudo initctl stop neutron-dhcp-agent
-ssh sv1 sudo initctl stop neutron-metadata-agent
-ssh sv1 sudo rm -f /var/log/neutron/*
-ssh sv1 sudo initctl start neutron-server
-ssh sv1 sudo initctl start openvswitch-switch
-ssh sv1 sudo initctl start neutron-plugin-openvswitch-agent
-ssh sv1 sudo initctl start neutron-l3-agent
-ssh sv1 sudo initctl start neutron-dhcp-agent
-ssh sv1 sudo initctl start neutron-metadata-agent
+function clear_neutron_log {
+    server=$1
+    uid=neutron
+    gid=adm
+    dmode=0750
+    ssh ${server} ps -ef | fgrep neutron || true
+    ssh ${server} sudo initctl stop neutron-server
+    ssh ${server} sudo initctl stop openvswitch-switch
+    ssh ${server} sudo initctl stop neutron-plugin-openvswitch-agent
+    ssh ${server} sudo initctl stop neutron-l3-agent
+    ssh ${server} sudo initctl stop neutron-dhcp-agent
+    ssh ${server} sudo initctl stop neutron-metadata-agent
+    ssh ${server} ps -ef | fgrep neutron || true
+    sleep 2
+    ssh ${server} sudo rm -rf              /var/log/neutron
+    ssh ${server} sudo mkdir               /var/log/neutron
+    ssh ${server} sudo chown ${uid}:${gid} /var/log/neutron
+    ssh ${server} sudo chmod ${dmode}      /var/log/neutron
+    ssh ${server} sudo initctl start neutron-server
+    ssh ${server} sudo initctl start openvswitch-switch
+    ssh ${server} sudo initctl start neutron-plugin-openvswitch-agent
+    ssh ${server} sudo initctl start neutron-l3-agent
+    ssh ${server} sudo initctl start neutron-dhcp-agent
+    ssh ${server} sudo initctl start neutron-metadata-agent
+}
 
-ssh sv2 sudo initctl stop neutron-server
-ssh sv2 sudo initctl stop openvswitch-switch
-ssh sv2 sudo initctl stop neutron-plugin-openvswitch-agent
-ssh sv2 sudo initctl stop neutron-l3-agent
-ssh sv2 sudo initctl stop neutron-dhcp-agent
-ssh sv2 sudo initctl stop neutron-metadata-agent
-ssh sv2 sudo rm -f /var/log/neutron/*
-ssh sv2 sudo initctl start neutron-server
-ssh sv2 sudo initctl start openvswitch-switch
-ssh sv2 sudo initctl start neutron-plugin-openvswitch-agent
-ssh sv2 sudo initctl start neutron-l3-agent
-ssh sv2 sudo initctl start neutron-dhcp-agent
-ssh sv2 sudo initctl start neutron-metadata-agent
-
-ssh sv3 sudo initctl stop neutron-server
-ssh sv3 sudo initctl stop openvswitch-switch
-ssh sv3 sudo initctl stop neutron-plugin-openvswitch-agent
-ssh sv3 sudo initctl stop neutron-l3-agent
-ssh sv3 sudo initctl stop neutron-dhcp-agent
-ssh sv3 sudo initctl stop neutron-metadata-agent
-ssh sv3 sudo rm -f /var/log/neutron/*
-ssh sv3 sudo initctl start neutron-server
-ssh sv3 sudo initctl start openvswitch-switch
-ssh sv3 sudo initctl start neutron-plugin-openvswitch-agent
-ssh sv3 sudo initctl start neutron-l3-agent
-ssh sv3 sudo initctl start neutron-dhcp-agent
-ssh sv3 sudo initctl start neutron-metadata-agent
+clear_neutron_log sv1
+clear_neutron_log sv2
+clear_neutron_log sv3
 
 # Cinder
