@@ -79,7 +79,6 @@ listen glance_api_cluster
     bind {{ cluster_virtual_ip }}:9292
     balance source
     option tcpka
-    option httpchk
     option tcplog
     server sv1 {{cluster_server_ips[0]}}:{{ glance_api_port }} check inter 2000 rise 2 fall 5
     server sv2 {{cluster_server_ips[1]}}:{{ glance_api_port }} check inter 2000 rise 2 fall 5 backup
