@@ -48,8 +48,8 @@
     crudini --set /etc/keystone/keystone.conf token provider keystone.token.providers.uuid.Provider
     crudini --set /etc/keystone/keystone.conf token driver keystone.token.persistence.backends.memcache.Token
     crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.backends.sql.Revoke
-    crudini --set /etc/keystone/keystone.conf DEFAULT verbose true
-    crudini --set /etc/keystone/keystone.conf DEFAULT debug true
+    crudini --set /etc/keystone/keystone.conf DEFAULT verbose False
+    crudini --set /etc/keystone/keystone.conf DEFAULT debug False
   changed_when: False
 
 - name: Check Keystone configuration modification

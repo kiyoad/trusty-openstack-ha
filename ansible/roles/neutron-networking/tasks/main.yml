@@ -27,8 +27,8 @@
 - name: Set Neutron configuration
   shell: |
     cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.prev
-    crudini --set /etc/neutron/neutron.conf DEFAULT debug True
-    crudini --set /etc/neutron/neutron.conf DEFAULT verbose True
+    crudini --set /etc/neutron/neutron.conf DEFAULT debug False
+    crudini --set /etc/neutron/neutron.conf DEFAULT verbose False
     crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
     crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
     crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}
@@ -58,14 +58,14 @@
     crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ovs bridge_mappings external:br-ex
     crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini agent tunnel_types gre
     cp /etc/neutron/l3_agent.ini /etc/neutron/l3_agent.ini.prev
-    crudini --set /etc/neutron/l3_agent.ini DEFAULT debug True
-    crudini --set /etc/neutron/l3_agent.ini DEFAULT verbose True
+    crudini --set /etc/neutron/l3_agent.ini DEFAULT debug False
+    crudini --set /etc/neutron/l3_agent.ini DEFAULT verbose False
     crudini --set /etc/neutron/l3_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
     crudini --set /etc/neutron/l3_agent.ini DEFAULT external_network_bridge ""
     crudini --set /etc/neutron/l3_agent.ini DEFAULT router_delete_namespaces True
     cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.prev
-    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT debug True
-    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT verbose True
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT debug False
+    crudini --set /etc/neutron/dhcp_agent.ini DEFAULT verbose False
     crudini --set /etc/neutron/dhcp_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
     crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dhcp_driver neutron.agent.linux.dhcp.Dnsmasq
     crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dhcp_delete_namespaces True
@@ -75,8 +75,8 @@
       pkill dnsmasq
     fi
     cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.prev
-    crudini --set /etc/neutron/metadata_agent.ini DEFAULT debug True
-    crudini --set /etc/neutron/metadata_agent.ini DEFAULT verbose True
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT debug False
+    crudini --set /etc/neutron/metadata_agent.ini DEFAULT verbose False
     crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_uri http://{{ keystone_ip }}:5000
     crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_url http://{{ keystone_ip }}:35357
     crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_region RegionOne

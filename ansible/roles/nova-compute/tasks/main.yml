@@ -10,8 +10,8 @@
 - name: Set Nova configuration
   shell: |
     cp /etc/nova/nova.conf /etc/nova/nova.conf.prev
-    crudini --set /etc/nova/nova.conf DEFAULT debug True
-    crudini --set /etc/nova/nova.conf DEFAULT verbose True
+    crudini --set /etc/nova/nova.conf DEFAULT debug False
+    crudini --set /etc/nova/nova.conf DEFAULT verbose False
     crudini --set /etc/nova/nova.conf DEFAULT rpc_backend rabbit
     crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
     crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}

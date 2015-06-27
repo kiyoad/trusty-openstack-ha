@@ -65,8 +65,8 @@
 - name: Set Neutron configuration
   shell: |
     cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.prev
-    crudini --set /etc/neutron/neutron.conf DEFAULT debug True
-    crudini --set /etc/neutron/neutron.conf DEFAULT verbose True
+    crudini --set /etc/neutron/neutron.conf DEFAULT debug False
+    crudini --set /etc/neutron/neutron.conf DEFAULT verbose False
     crudini --set /etc/neutron/neutron.conf DEFAULT bind_port {{ neutron_api_port }}
     crudini --set /etc/neutron/neutron.conf database connection mysql://neutron:{{ neutron_db_password }}@{{ openstack_database_ip }}/neutron
     crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit

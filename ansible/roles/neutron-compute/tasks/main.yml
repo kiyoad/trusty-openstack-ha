@@ -25,8 +25,8 @@
 - name: Set Neutron configuration
   shell: |
     cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.prev
-    crudini --set /etc/neutron/neutron.conf DEFAULT debug True
-    crudini --set /etc/neutron/neutron.conf DEFAULT verbose True
+    crudini --set /etc/neutron/neutron.conf DEFAULT debug False
+    crudini --set /etc/neutron/neutron.conf DEFAULT verbose False
     crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
     crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
     crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}
