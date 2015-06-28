@@ -1,20 +1,15 @@
 ---
 # Install Neutron on compute node
 
-- name: Check kernel networking function
-  shell: grep -q '^net\.bridge\.bridge-nf-call-iptables' /etc/sysctl.conf
-  register: result
-  ignore_errors: True
-  changed_when: False
-
 - name: Change kernel networking function
-  shell: |
-    echo 'net.ipv4.conf.all.rp_filter=0'         >> /etc/sysctl.conf
-    echo 'net.ipv4.conf.default.rp_filter=0'     >> /etc/sysctl.conf
-    echo 'net.bridge.bridge-nf-call-iptables=1'  >> /etc/sysctl.conf
-    echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf
-    sysctl -p
-  when: result|failed
+  lineinfile: dest=/etc/sysctl.conf line="{{ item }}"
+  with_items:
+    - net.ipv4.conf.all.rp_filter=0
+    - net.ipv4.conf.default.rp_filter=0
+    - net.bridge.bridge-nf-call-iptables=1
+    - net.bridge.bridge-nf-call-ip6tables=1
+  notify:
+    - Run sysctl for neutron-compute
 
 - name: Install Neutron packages
   apt: name="{{ item }}"

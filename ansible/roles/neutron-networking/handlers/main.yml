@@ -8,3 +8,6 @@
     initctl restart neutron-l3-agent &&
     initctl restart neutron-dhcp-agent &&
     initctl restart neutron-metadata-agent
+
+- name: Run sysctl for neutron-networking
+  shell: sysctl -p

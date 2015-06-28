@@ -5,3 +5,6 @@
   shell: >-
     initctl restart openvswitch-switch &&
     initctl restart neutron-plugin-openvswitch-agent
+
+- name: Run sysctl for neutron-compute
+  shell: sysctl -p
