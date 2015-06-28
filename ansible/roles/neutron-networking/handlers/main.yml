@@ -6,8 +6,12 @@
     initctl restart openvswitch-switch &&
     initctl restart neutron-plugin-openvswitch-agent &&
     initctl restart neutron-l3-agent &&
-    initctl restart neutron-dhcp-agent &&
-    initctl restart neutron-metadata-agent
+    initctl restart neutron-dhcp-agent
+#   initctl restart neutron-metadata-agent
 
 - name: Run sysctl for neutron-networking
   shell: sysctl -p
+
+- name: Register CRM
+  shell: crm configure load update /root/neutron-metadata-cluster.crm
+  when: require_crm_settings

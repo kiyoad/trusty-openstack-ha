@@ -121,3 +121,18 @@
     ovs-vsctl add-port br-ex {{ br_ex_interface }}
     ethtool -K {{ br_ex_interface }} gro off
   when: result|failed
+
+- name: Disable metadata_agent autostart
+  service: name=neutron-metadata-agent enabled=no
+
+- name: Create openstack OCF directory
+  file: path=/usr/lib/ocf/resource.d/openstack state=directory mode=0755
+
+- name: Install neutron-metadata-agent OCF file
+  # https://raw.github.com/madkiss/openstack-resource-agents/master/ocf/neutron-metadata-agent
+  copy: src=neutron-metadata-agent dest=/usr/lib/ocf/resource.d/openstack/neutron-metadata-agent mode=0755
+
+- name: Install crm settings
+  template: src=neutron-metadata-cluster.crm.j2 dest=/root/neutron-metadata-cluster.crm
+  notify: Register CRM
+  when: require_crm_settings
