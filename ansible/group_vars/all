@@ -58,12 +58,18 @@ keystone_db_password: KEYSTONE_DBPASS
 keystone_admin_token: ADMIN_TOKEN
 keystone_admin_port: 35358 # default: 35357
 keystone_public_port: 5001 # default: 5000
+keystone_conf_verbose: False
+keystone_conf_debug: False
 
 glance_ip: "{{ cluster_virtual_ip }}"
 glance_db_password: GLANCE_DBPASS
 glance_password: GLANCE_PASS
 glance_api_port: 19292 # default: 9292
 glance_registry_port: 19191 # default: 9191
+glance_api_conf_debug: False
+glance_api_conf_verbose: False
+glance_registry_conf_debug: False
+glance_registry_conf_verbose: False
 
 nova_ip: "{{ cluster_virtual_ip }}"
 nova_db_password: NOVA_DBPASS
@@ -73,9 +79,25 @@ nova_compute_port: 18774 # default: 8774
 nova_metadata_port: 18775 # default: 8775
 nova_novncproxy_port: 16080 # default: 6080
 metadata_proxy_shared_secret: METADATA_SECRET
+nova_conf_debug: False
+nova_conf_verbose: False
+nova_compute_conf_debug: "{{ nova_conf_debug }}"
+nova_compute_conf_verbose: "{{ nova_conf_verbose }}"
 
 neutron_ip: "{{ cluster_virtual_ip }}"
 neutron_db_password: NEUTRON_DBPASS
 neutron_password: NEUTRON_PASS
 neutron_api_port: 19696 # default: 9696
 br_ex_interface: eth3
+neutron_conf_debug: False
+neutron_conf_verbose: False
+neutron_network_conf_debug: "{{ neutron_conf_debug }}"
+neutron_network_conf_verbose: "{{ neutron_conf_verbose }}"
+neutron_l3_conf_debug: False
+neutron_l3_conf_verbose: False
+neutron_dhcp_conf_debug: False
+neutron_dhcp_conf_verbose: False
+neutron_metadata_conf_debug: False
+neutron_metadata_conf_verbose: False
+neutron_compute_conf_debug: "{{ neutron_conf_debug }}"
+neutron_compute_conf_verbose: "{{ neutron_conf_verbose }}"

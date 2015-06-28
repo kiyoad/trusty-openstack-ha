@@ -65,8 +65,8 @@
 - name: Set Glance configuration
   shell: |
     cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.prev
-    crudini --set /etc/glance/glance-api.conf      DEFAULT debug False
-    crudini --set /etc/glance/glance-api.conf      DEFAULT verbose False
+    crudini --set /etc/glance/glance-api.conf      DEFAULT debug {{ glance_api_conf_debug }}
+    crudini --set /etc/glance/glance-api.conf      DEFAULT verbose {{ glance_api_conf_verbose }}
     crudini --set /etc/glance/glance-api.conf      DEFAULT bind_port {{ glance_api_port }}
     crudini --set /etc/glance/glance-api.conf      DEFAULT registry_host {{ glance_ip }}
     crudini --set /etc/glance/glance-api.conf      database connection mysql://glance:{{ glance_db_password }}@{{ openstack_database_ip }}/glance
@@ -88,8 +88,8 @@
     crudini --set /etc/glance/glance-api.conf      DEFAULT show_image_direct_url True
     crudini --set /etc/glance/glance-api.conf      DEFAULT notification_driver noop
     cp /etc/glance/glance-registry.conf /etc/glance/glance-registry.conf.prev
-    crudini --set /etc/glance/glance-registry.conf DEFAULT debug False
-    crudini --set /etc/glance/glance-registry.conf DEFAULT verbose False
+    crudini --set /etc/glance/glance-registry.conf DEFAULT debug {{ glance_registry_conf_debug }}
+    crudini --set /etc/glance/glance-registry.conf DEFAULT verbose {{ glance_registry_conf_verbose }}
     crudini --set /etc/glance/glance-registry.conf DEFAULT bind_port {{ glance_registry_port }}
     crudini --set /etc/glance/glance-registry.conf database connection mysql://glance:{{ glance_db_password }}@{{ openstack_database_ip }}/glance
     crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
