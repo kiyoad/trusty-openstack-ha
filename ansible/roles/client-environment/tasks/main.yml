@@ -18,3 +18,9 @@
 
 - name: Install log clear script
   copy: src=clear-logs.sh dest=/home/vagrant/openstack/clear-logs.sh owner=vagrant group=vagrant mode=0755
+
+- name: Install to create virtual-network script
+  template: src={{ item }}.j2 dest=/home/vagrant/openstack/{{ item }} owner=vagrant group=vagrant mode=0755
+  with_items:
+    - create-sample-network.sh
+    - delete-sample-network.sh

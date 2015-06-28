@@ -101,3 +101,10 @@ neutron_metadata_conf_debug: False
 neutron_metadata_conf_verbose: False
 neutron_compute_conf_debug: "{{ neutron_conf_debug }}"
 neutron_compute_conf_verbose: "{{ neutron_conf_verbose }}"
+
+neutron_ext_subnet_allocation_pool_start: 192.168.1.240
+neutron_ext_subnet_allocation_pool_end: 192.168.1.249
+neutron_ext_subnet_gateway: 192.168.1.1
+neutron_ext_subnet_cidr: 192.168.1.0/24
+neutron_demo_subnet_gateway: 192.168.99.1
+neutron_demo_subnet_cidr: 192.168.99.0/24
