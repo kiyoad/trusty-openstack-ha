@@ -40,6 +40,7 @@
     crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
     crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins router
     crudini --set /etc/neutron/neutron.conf DEFAULT allow_overlapping_ips True
+    crudini --set /etc/neutron/neutron.conf DEFAULT allow_automatic_l3agent_failover True
     cp  /etc/neutron/plugins/ml2/ml2_conf.ini  /etc/neutron/plugins/ml2/ml2_conf.ini.prev
     crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,gre,vxlan
     crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types gre
