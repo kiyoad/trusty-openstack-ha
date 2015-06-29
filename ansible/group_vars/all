@@ -108,3 +108,5 @@ neutron_ext_subnet_gateway: 192.168.1.1
 neutron_ext_subnet_cidr: 192.168.1.0/24
 neutron_demo_subnet_gateway: 192.168.99.1
 neutron_demo_subnet_cidr: 192.168.99.0/24
+
+dashboard_port: 10080 # default: 80

@@ -1,0 +1,20 @@
+---
+# Install Dashboard
+
+- name: Install the dashboard components
+  apt: name=openstack-dashboard
+
+- name: Install the dashboard setting
+  template: src=local_settings.py.j2 dest=/etc/openstack-dashboard/local_settings.py
+  notify:
+    - Restart dashboard
+
+- name: Install Apache ports setting
+  template: src=ports.conf.j2 dest=/etc/apache2/ports.conf
+  notify:
+    - Restart dashboard
+
+- name: Install Apache default setting
+  template: src=000-default.conf.j2 dest=/etc/apache2/sites-available/000-default.conf
+  notify:
+    - Restart dashboard

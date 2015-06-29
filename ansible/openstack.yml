@@ -14,6 +14,7 @@
     - neutron
     - neutron-networking
     - neutron-compute
+    - dashboard
   sudo: yes
   tags:
     - openstack
