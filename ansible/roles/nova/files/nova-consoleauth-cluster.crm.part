@@ -1,0 +1,5 @@
+primitive p_nova-consoleauth ocf:openstack:nova-consoleauth \
+  params config="/etc/nova/nova.conf" \
+  op monitor interval="30s" timeout="30s"
+
+group p_nova-consoleauth

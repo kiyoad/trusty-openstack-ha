@@ -133,6 +133,6 @@
   copy: src=neutron-metadata-agent dest=/usr/lib/ocf/resource.d/openstack/neutron-metadata-agent mode=0755
 
 - name: Install crm settings
-  template: src=neutron-metadata-cluster.crm.j2 dest=/root/neutron-metadata-cluster.crm
+  copy: src=neutron-metadata-cluster.crm.part dest=/root/neutron-metadata-cluster.crm.part
   notify: Register CRM
   when: require_crm_settings
