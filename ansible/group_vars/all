@@ -110,3 +110,12 @@ neutron_demo_subnet_gateway: 192.168.99.1
 neutron_demo_subnet_cidr: 192.168.99.0/24
 
 dashboard_port: 10080 # default: 80
+
+cinder_ip: "{{ cluster_virtual_ip }}"
+cinder_db_password: CINDER_DBPASS
+cinder_password: CINDER_PASS
+cinder_api_port: 18776 # default: 8776
+cinder_conf_debug: False
+cinder_conf_verbose: False
+cinder_volume_conf_debug: "{{ cinder_conf_debug }}"
+cinder_volume_conf_verbose: "{{ cinder_conf_verbose }}"

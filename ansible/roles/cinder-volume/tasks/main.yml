@@ -1,0 +1,52 @@
+---
+# Install Cinder volume
+
+- name: install Cinder volume component
+  apt: name=cinder-volume
+
+- name: config Cinder settings
+  shell: |
+    cp /etc/cinder/cinder.conf /etc/cinder/cinder.conf.prev
+    crudini --set /etc/cinder/cinder.conf DEFAULT debug {{ cinder_volume_conf_debug }}
+    crudini --set /etc/cinder/cinder.conf DEFAULT verbose {{ cinder_volume_conf_verbose }}
+    crudini --set /etc/cinder/cinder.conf database connection mysql://cinder:{{ cinder_db_password }}@{{ openstack_database_ip }}/cinder
+    crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
+    crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
+    crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}
+    crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_password {{ messaging_password }}
+    crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_uri http://{{ keystone_ip }}:5000
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_url http://{{ keystone_ip }}:35357
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_plugin password
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken project_domain_id default
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken user_domain_id default
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken project_name service
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken username cinder
+    crudini --set /etc/cinder/cinder.conf keystone_authtoken password {{ cinder_password }}
+    crudini --set /etc/cinder/cinder.conf DEFAULT my_ip {{ my_ip }}
+    crudini --set /etc/cinder/cinder.conf DEFAULT volume_driver cinder.volume.drivers.rbd.RBDDriver
+    crudini --set /etc/cinder/cinder.conf DEFAULT rbd_pool volumes
+    crudini --set /etc/cinder/cinder.conf DEFAULT rbd_ceph_conf /etc/ceph/ceph.conf
+    crudini --set /etc/cinder/cinder.conf DEFAULT rbd_flatten_volume_from_snapshot false
+    crudini --set /etc/cinder/cinder.conf DEFAULT rbd_max_clone_depth 5
+    crudini --set /etc/cinder/cinder.conf DEFAULT rbd_store_chunk_size 4
+    crudini --set /etc/cinder/cinder.conf DEFAULT rados_connect_timeout -1
+    crudini --set /etc/cinder/cinder.conf DEFAULT glance_api_version 2
+    crudini --set /etc/cinder/cinder.conf DEFAULT rbd_user cinder
+    crudini --set /etc/cinder/cinder.conf DEFAULT rbd_secret_uuid 57090ca8-c135-4349-b3d1-10d12467e081
+    #crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends rbd
+    crudini --set /etc/cinder/cinder.conf DEFAULT glance_host {{ glance_ip }}
+    crudini --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lock/cinder
+  changed_when: False
+
+- name: Check Cinder configuration modification
+  shell: diff -u /etc/cinder/cinder.conf.prev /etc/cinder/cinder.conf
+  register: equal
+  ignore_errors: True
+  changed_when: equal|failed
+  notify:
+    - Restart Cinder volume
+
+- name: Remove unused SQLite database
+  file: path=/var/lib/cinder/cinder.sqlite state=absent
+  ignore_errors: True

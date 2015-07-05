@@ -149,3 +149,13 @@ listen dashboard_cluster
     server sv1 {{cluster_server_ips[0]}}:{{ dashboard_port }} check inter 2000 rise 2 fall 5
     server sv2 {{cluster_server_ips[1]}}:{{ dashboard_port }} check inter 2000 rise 2 fall 5 backup
     server sv3 {{cluster_server_ips[2]}}:{{ dashboard_port }} check inter 2000 rise 2 fall 5 backup
+
+listen cinder_api_cluster
+    bind {{ cluster_virtual_ip }}:8776
+    balance source
+    option tcpka
+    option httpchk
+    option tcplog
+    server sv1 {{cluster_server_ips[0]}}:{{ cinder_api_port }} check inter 2000 rise 2 fall 5
+    server sv2 {{cluster_server_ips[1]}}:{{ cinder_api_port }} check inter 2000 rise 2 fall 5 backup
+    server sv3 {{cluster_server_ips[2]}}:{{ cinder_api_port }} check inter 2000 rise 2 fall 5 backup

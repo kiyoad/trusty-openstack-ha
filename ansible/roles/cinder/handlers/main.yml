@@ -1,0 +1,7 @@
+---
+# Cinder handler
+
+- name: Restart Cinder
+  shell: >-
+    initctl restart cinder-scheduler &&
+    initctl restart cinder-api

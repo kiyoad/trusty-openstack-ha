@@ -1,0 +1,5 @@
+---
+# Cinder volume handler
+
+- name: Restart Cinder volume
+  shell: initctl restart cinder-volume
