@@ -109,13 +109,13 @@
 - name: Remove unused SQLite database
   file: path=/var/lib/keystone/keystone.db state=absent
 
-- name: Restart Keystone now if we populate the Identity service database
+- name: Restart Keystone now if we need the database settings
   service: name=apache2 enabled=yes state=restarted
-  when: require_db_settings and is_table_exist|failed
+  when: require_db_settings
 
-- name: Wait Keystone if we populate the Identity service database
+- name: Wait Keystone if we need the database settings
   wait_for: port={{ keystone_admin_port }} delay=5
-  when: require_db_settings and is_table_exist|failed
+  when: require_db_settings
 
 - name: Check admin user existence
   shell: LC_ALL=C openstack --os-token {{ keystone_admin_token }} --os-url http://{{ keystone_ip }}:35357/v2.0 user list | grep -q admin
