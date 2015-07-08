@@ -108,7 +108,7 @@
   when: require_db_settings and is_table_exist|failed
 
 - name: Check admin user existence
-  shell: openstack --os-token {{ keystone_admin_token }} --os-url http://{{ keystone_ip }}:35357/v2.0 user list | grep -q admin
+  shell: LC_ALL=C openstack --os-token {{ keystone_admin_token }} --os-url http://{{ keystone_ip }}:35357/v2.0 user list | grep -q admin
   register: is_admin_exist
   ignore_errors: True
   changed_when: False
@@ -116,6 +116,7 @@
 
 - name: Add admin,guest and service tenant info
   shell: |
+    export LC_ALL=C
     export OS_TOKEN={{ keystone_admin_token }}
     export OS_URL=http://{{ keystone_ip }}:35357/v2.0
     openstack service create --name keystone --description "OpenStack Identity" identity
