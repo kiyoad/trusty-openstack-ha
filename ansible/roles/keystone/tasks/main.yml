@@ -85,6 +85,16 @@
 - name: Enable the Identity service virtual hosts
   file: src=/etc/apache2/sites-available/wsgi-keystone.conf dest=/etc/apache2/sites-enabled/wsgi-keystone.conf state=link
 
+- name: Install Apache ports setting
+  template: src=ports.conf.j2 dest=/etc/apache2/ports.conf
+  notify:
+    - Restart Keystone
+
+- name: Install Apache default setting
+  template: src=000-default.conf.j2 dest=/etc/apache2/sites-available/000-default.conf
+  notify:
+    - Restart Keystone
+
 - name: Create the directory structure for the WSGI components
   file: path=/var/www/cgi-bin/keystone state=directory mode=0755
 
