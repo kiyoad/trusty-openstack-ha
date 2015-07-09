@@ -26,6 +26,7 @@
 
 - name: Check Neutron user existence
   shell: |
+    export LC_ALL=C
     export OS_PROJECT_DOMAIN_ID=default
     export OS_USER_DOMAIN_ID=default
     export OS_PROJECT_NAME=admin
@@ -41,6 +42,7 @@
 
 - name: Add Neutron user,role,service and endpoint
   shell: |
+    export LC_ALL=C
     export OS_PROJECT_DOMAIN_ID=default
     export OS_USER_DOMAIN_ID=default
     export OS_PROJECT_NAME=admin
