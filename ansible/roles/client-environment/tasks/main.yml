@@ -7,20 +7,17 @@
 - name: Create OpenStack utility script directory
   file: path=/home/vagrant/openstack state=directory owner=vagrant group=vagrant mode=0755
 
-- name: Install the script for admin
-  template: src=admin-openrc.sh.j2 dest=/home/vagrant/openstack/admin-openrc.sh owner=vagrant group=vagrant mode=0644
+- name: Install environment variable setting scripts
+  template: src={{ item }}.j2 dest=/home/vagrant/openstack/{{ item }} owner=vagrant group=vagrant mode=0644
+  with_items:
+    - admin-openrc.sh
+    - demo-openrc.sh
 
-- name: Install the script for demo
-  template: src=demo-openrc.sh.j2 dest=/home/vagrant/openstack/demo-openrc.sh owner=vagrant group=vagrant mode=0644
-
-- name: Install to prepare the ceph script
-  template: src=prepare-ceph.sh.j2 dest=/home/vagrant/openstack/prepare-ceph.sh owner=vagrant group=vagrant mode=0755
-
-- name: Install log clear script
-  copy: src=clear-logs.sh dest=/home/vagrant/openstack/clear-logs.sh owner=vagrant group=vagrant mode=0755
-
-- name: Install to create virtual-network script
+- name: Install maintenance scripts
   template: src={{ item }}.j2 dest=/home/vagrant/openstack/{{ item }} owner=vagrant group=vagrant mode=0755
   with_items:
+    - prepare-ceph.sh
     - create-sample-network.sh
     - delete-sample-network.sh
+    - get-cirros-and-reg.sh
+    - clear-logs.sh
