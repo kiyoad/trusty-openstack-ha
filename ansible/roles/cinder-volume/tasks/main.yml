@@ -9,6 +9,7 @@
     cp /etc/cinder/cinder.conf /etc/cinder/cinder.conf.prev
     crudini --set /etc/cinder/cinder.conf DEFAULT debug {{ cinder_volume_conf_debug }}
     crudini --set /etc/cinder/cinder.conf DEFAULT verbose {{ cinder_volume_conf_verbose }}
+    crudini --set /etc/cinder/cinder.conf DEFAULT rpc_response_timeout {{ cinder_volume_rpc_response_timeout }}
     crudini --set /etc/cinder/cinder.conf database connection mysql://cinder:{{ cinder_db_password }}@{{ openstack_database_ip }}/cinder
     crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
     crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}

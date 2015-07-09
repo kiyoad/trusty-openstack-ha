@@ -12,6 +12,7 @@
     cp /etc/nova/nova.conf /etc/nova/nova.conf.prev
     crudini --set /etc/nova/nova.conf DEFAULT debug {{ nova_compute_conf_debug }}
     crudini --set /etc/nova/nova.conf DEFAULT verbose {{ nova_compute_conf_verbose }}
+    crudini --set /etc/nova/nova.conf DEFAULT rpc_response_timeout {{ nova_compute_rpc_response_timeout }}
     crudini --set /etc/nova/nova.conf DEFAULT rpc_backend rabbit
     crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_host {{ openstack_messaging_ip }}
     crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_userid {{ messaging_user }}

@@ -73,6 +73,7 @@
     cp /etc/nova/nova.conf /etc/nova/nova.conf.prev
     crudini --set /etc/nova/nova.conf DEFAULT debug {{ nova_conf_debug }}
     crudini --set /etc/nova/nova.conf DEFAULT verbose {{ nova_conf_verbose }}
+    crudini --set /etc/nova/nova.conf DEFAULT rpc_response_timeout {{ nova_rpc_response_timeout }}
     crudini --set /etc/nova/nova.conf DEFAULT ec2_listen_port {{ nova_ec2_port }}
     crudini --set /etc/nova/nova.conf DEFAULT osapi_compute_listen_port {{ nova_compute_port }}
     crudini --set /etc/nova/nova.conf DEFAULT metadata_listen_port {{ nova_metadata_port }}

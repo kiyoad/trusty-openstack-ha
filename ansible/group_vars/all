@@ -81,8 +81,10 @@ nova_novncproxy_port: 16080 # default: 6080
 metadata_proxy_shared_secret: METADATA_SECRET
 nova_conf_debug: False
 nova_conf_verbose: False
+nova_rpc_response_timeout: 600 # default: 60
 nova_compute_conf_debug: "{{ nova_conf_debug }}"
 nova_compute_conf_verbose: "{{ nova_conf_verbose }}"
+nova_compute_rpc_response_timeout: "{{ nova_rpc_response_timeout }}"
 
 neutron_ip: "{{ cluster_virtual_ip }}"
 neutron_db_password: NEUTRON_DBPASS
@@ -91,8 +93,10 @@ neutron_api_port: 19696 # default: 9696
 br_ex_interface: eth3
 neutron_conf_debug: False
 neutron_conf_verbose: False
+neutron_rpc_response_timeout: 600 # default 60
 neutron_network_conf_debug: "{{ neutron_conf_debug }}"
 neutron_network_conf_verbose: "{{ neutron_conf_verbose }}"
+neutron_network_rpc_response_timeout: "{{ neutron_rpc_response_timeout }}"
 neutron_l3_conf_debug: False
 neutron_l3_conf_verbose: False
 neutron_dhcp_conf_debug: False
@@ -101,6 +105,7 @@ neutron_metadata_conf_debug: False
 neutron_metadata_conf_verbose: False
 neutron_compute_conf_debug: "{{ neutron_conf_debug }}"
 neutron_compute_conf_verbose: "{{ neutron_conf_verbose }}"
+neutron_compute_rpc_response_timeout: "{{ neutron_rpc_response_timeout }}"
 
 neutron_ext_subnet_allocation_pool_start: 192.168.1.240
 neutron_ext_subnet_allocation_pool_end: 192.168.1.249
@@ -117,5 +122,7 @@ cinder_password: CINDER_PASS
 cinder_api_port: 18776 # default: 8776
 cinder_conf_debug: False
 cinder_conf_verbose: False
+cinder_rpc_response_timeout: 600 # default: 60
 cinder_volume_conf_debug: "{{ cinder_conf_debug }}"
 cinder_volume_conf_verbose: "{{ cinder_conf_verbose }}"
+cinder_volume_rpc_response_timeout: "{{ cinder_rpc_response_timeout }}"

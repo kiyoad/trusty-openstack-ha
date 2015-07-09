@@ -71,6 +71,7 @@
     cp /etc/cinder/cinder.conf /etc/cinder/cinder.conf.prev
     crudini --set /etc/cinder/cinder.conf DEFAULT debug {{ cinder_conf_debug }}
     crudini --set /etc/cinder/cinder.conf DEFAULT verbose {{ cinder_conf_verbose }}
+    crudini --set /etc/cinder/cinder.conf DEFAULT rpc_response_timeout {{ cinder_rpc_response_timeout }}
     crudini --set /etc/cinder/cinder.conf DEFAULT osapi_volume_listen_port {{ cinder_api_port }}
     crudini --set /etc/cinder/cinder.conf database connection mysql://cinder:{{ cinder_db_password }}@{{ openstack_database_ip }}/cinder
     crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
