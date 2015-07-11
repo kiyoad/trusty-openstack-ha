@@ -99,6 +99,10 @@
     crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
     crudini --set /etc/nova/nova.conf neutron service_metadata_proxy True
     crudini --set /etc/nova/nova.conf neutron metadata_proxy_shared_secret {{ metadata_proxy_shared_secret }}
+    crudini --set /etc/nova/nova.conf DEFAULT osapi_compute_workers 1
+    crudini --set /etc/nova/nova.conf DEFAULT ec2_workers 1
+    crudini --set /etc/nova/nova.conf DEFAULT metadata_workers 1
+    crudini --set /etc/nova/nova.conf conductor workers 1
   changed_when: False
 
 - name: Check Nova configuration modification
