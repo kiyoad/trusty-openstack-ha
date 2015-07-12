@@ -126,12 +126,19 @@
 - name: Disable metadata_agent autostart
   service: name=neutron-metadata-agent enabled=no
 
+- name: Disable l3_agent autostart
+  service: name=neutron-l3-agent enabled=no
+
 - name: Create openstack OCF directory
   file: path=/usr/lib/ocf/resource.d/openstack state=directory mode=0755
 
 - name: Install neutron-metadata-agent OCF file
   # https://raw.github.com/madkiss/openstack-resource-agents/master/ocf/neutron-metadata-agent
   copy: src=neutron-metadata-agent dest=/usr/lib/ocf/resource.d/openstack/neutron-metadata-agent mode=0755
+
+- name: Install neutron-l3-agent OCF file
+  # https://raw.githubusercontent.com/madkiss/openstack-resource-agents/master/ocf/neutron-agent-l3
+  copy: src=neutron-agent-l3 dest=/usr/lib/ocf/resource.d/openstack/neutron-agent-l3 mode=0755
 
 - name: Install crm settings
   copy: src=neutron-metadata-cluster.crm.part dest=/root/neutron-metadata-cluster.crm.part

@@ -5,9 +5,9 @@
   shell: >-
     initctl restart openvswitch-switch &&
     initctl restart neutron-plugin-openvswitch-agent &&
-    initctl restart neutron-l3-agent &&
     initctl restart neutron-dhcp-agent
 #   initctl restart neutron-metadata-agent
+#   initctl restart neutron-l3-agent
 
 - name: Run sysctl for neutron-networking
   shell: sysctl -p
