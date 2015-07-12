@@ -2,4 +2,7 @@ primitive p_nova-consoleauth ocf:openstack:nova-consoleauth \
   params config="/etc/nova/nova.conf" \
   op monitor interval="30s" timeout="30s"
 
-group p_nova-consoleauth
+location l_nova-consoleauth p_nova-consoleauth \
+  rule 100: #uname eq sv1 \
+  rule 100: #uname eq sv2 \
+  rule 100: #uname eq sv3
