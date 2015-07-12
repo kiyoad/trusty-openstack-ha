@@ -13,9 +13,9 @@
 - name: Register CRM
   shell: |
     grep -v  '^group' /root/cluster.crm > /root/new.crm
-    grep -vh '^group' /root/*.crm.part >> /root/new.crm
+    grep -vh '+group' /root/*.crm.part >> /root/new.crm
     grep     '^group' /root/cluster.crm > /root/group.part
-    grep -h  '^group' /root/*.crm.part | sed -e 's|^group ||' >> /root/group.part
+    grep -h  '+group' /root/*.crm.part | sed -e 's|+group ||' >> /root/group.part
     sed -ze 's|\n| |g' /root/group.part >> /root/new.crm
     crm configure load update /root/new.crm
   when: require_crm_settings
