@@ -1,0 +1,8 @@
+primitive p_cinder-volume ocf:openstack:cinder-volume \
+  params config="/etc/cinder/cinder.conf" \
+  op monitor interval="30s" timeout="30s"
+
+location l_cinder-volume p_cinder-volume \
+  rule 100: #uname eq sv1 \
+  rule 0: #uname eq sv2 \
+  rule 0: #uname eq sv3
