@@ -1,0 +1,12 @@
+primitive p_nova-compute ocf:openstack:nova-compute \
+  op start interval="0s" timeout="300s" \
+  op monitor interval="30s" timeout="30s"
+
+location l_nova-compute p_nova-compute \
+  rule 0: #uname eq sv1 \
+  rule 10: #uname eq sv2 \
+  rule 10: #uname eq sv3
+
+clone cl_nova-compute \
+  p_nova-compute \
+  meta clone-max="2"

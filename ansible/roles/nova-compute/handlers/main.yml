@@ -2,5 +2,5 @@
 # Nova compute handler
 
 - name: Restart Nova compute
-# shell: initctl restart nova-compute
-  shell: service nova-compute restart
+  shell: crm resource restart cl_nova-compute
+  ignore_errors: True

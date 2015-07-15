@@ -6,3 +6,6 @@ location l_cinder-volume p_cinder-volume \
   rule 100: #uname eq sv1 \
   rule 0: #uname eq sv2 \
   rule 0: #uname eq sv3
+
+colocation co_n-com_c-vol \
+  -inf: cl_nova-compute p_cinder-volume
