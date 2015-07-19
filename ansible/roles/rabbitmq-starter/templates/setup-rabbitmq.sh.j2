@@ -1,5 +1,15 @@
 #!/bin/bash
 set -eux
+ssh sv1 sudo rabbitmqctl stop_app
+ssh sv1 sudo rabbitmqctl reset
+ssh sv1 sudo rabbitmqctl start_app
+ssh sv2 sudo rabbitmqctl stop_app
+ssh sv2 sudo rabbitmqctl reset
+ssh sv2 sudo rabbitmqctl start_app
+ssh sv3 sudo rabbitmqctl stop_app
+ssh sv3 sudo rabbitmqctl reset
+ssh sv3 sudo rabbitmqctl start_app
+
 ssh sv2 sudo rabbitmqctl stop_app
 ssh sv2 sudo rabbitmqctl join_cluster rabbit@sv1
 ssh sv2 sudo rabbitmqctl start_app
