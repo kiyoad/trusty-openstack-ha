@@ -19,7 +19,10 @@
 - name: Put /etc/default/corosync
   copy: src=corosync dest=/etc/default/corosync
 
+- name: Create CRM build directory
+  file: path=/root/crm state=directory mode=0755
+
 - name: Install crm settings
-  template: src=cluster.crm.j2 dest=/root/cluster.crm
+  template: src=cluster.crm.j2 dest=/root/crm/cluster.crm
   notify: Register CRM
   when: require_crm_settings

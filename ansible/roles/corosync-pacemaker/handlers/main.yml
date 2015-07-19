@@ -8,5 +8,11 @@
   service: name=pacemaker enabled=yes state=restarted
 
 - name: Register CRM
-  shell: crm configure load update /root/cluster.crm
+  shell: |
+    grep -v  '^group' /root/crm/cluster.crm > /root/crm/new.crm
+    grep -vh '+group' /root/crm/*.crm.part >> /root/crm/new.crm
+    grep     '^group' /root/crm/cluster.crm > /root/crm/group.part
+    grep -h  '+group' /root/crm/*.crm.part | sed -e 's|+group ||' >> /root/crm/group.part
+    sed -ze 's|\n| |g' /root/crm/group.part >> /root/crm/new.crm
+    crm configure load update /root/crm/new.crm
   when: require_crm_settings

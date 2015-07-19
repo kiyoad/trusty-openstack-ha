@@ -62,7 +62,10 @@
   # https://raw.githubusercontent.com/madkiss/openstack-resource-agents/master/ocf/cinder-volume
   copy: src=cinder-volume dest=/usr/lib/ocf/resource.d/openstack/cinder-volume mode=0755
 
+- name: Create CRM build directory
+  file: path=/root/crm state=directory mode=0755
+
 - name: Install crm settings
-  copy: src=cinder-volume.crm.part dest=/root/cinder-volume.crm.part
+  copy: src=cinder-volume.crm.part dest=/root/crm/cinder-volume.crm.part
   notify: Register CRM
   when: require_crm_settings

@@ -81,7 +81,10 @@
 - name: Install nova-compute OCF file
   copy: src=nova-compute dest=/usr/lib/ocf/resource.d/openstack/nova-compute mode=0755
 
+- name: Create CRM build directory
+  file: path=/root/crm state=directory mode=0755
+
 - name: Install crm settings
-  copy: src=nova-compute.crm.part dest=/root/nova-compute.crm.part
+  copy: src=nova-compute.crm.part dest=/root/crm/nova-compute.crm.part
   notify: Register CRM
   when: require_crm_settings
