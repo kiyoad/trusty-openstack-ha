@@ -61,8 +61,6 @@ function clear_nova_log {
     ssh ${server} sudo initctl stop nova-scheduler
     ssh ${server} sudo initctl stop nova-conductor
     ssh ${server} sudo initctl stop nova-novncproxy
-    ssh ${server} sudo service nova-compute stop
-    ssh ${server} sudo initctl stop nova-consoleauth
     set -e
     ssh ${server} ps -ef | fgrep nova || true
     sleep 2
@@ -75,15 +73,15 @@ function clear_nova_log {
     ssh ${server} sudo initctl start nova-scheduler
     ssh ${server} sudo initctl start nova-conductor
     ssh ${server} sudo initctl start nova-novncproxy
-    ssh ${server} sudo service nova-compute start
-    set +e
-    ssh ${server} sudo initctl stop nova-consoleauth # Act/Stb service
-    set -e
 }
 
+ssh sv1 sudo crm resource stop cl_nova-compute
+ssh sv1 sudo crm resource stop p_nova-consoleauth
 clear_nova_log sv1
 clear_nova_log sv2
 clear_nova_log sv3
+ssh sv1 sudo crm resource start p_nova-consoleauth
+ssh sv1 sudo crm resource start cl_nova-compute
 
 # Neutron
 function clear_neutron_log {
@@ -96,9 +94,7 @@ function clear_neutron_log {
     ssh ${server} sudo initctl stop neutron-server
     ssh ${server} sudo initctl stop openvswitch-switch
     ssh ${server} sudo initctl stop neutron-plugin-openvswitch-agent
-    ssh ${server} sudo initctl stop neutron-l3-agent
     ssh ${server} sudo initctl stop neutron-dhcp-agent
-    ssh ${server} sudo initctl stop neutron-metadata-agent
     set -e
     ssh ${server} ps -ef | fgrep neutron || true
     sleep 2
@@ -109,16 +105,14 @@ function clear_neutron_log {
     ssh ${server} sudo initctl start neutron-server
     ssh ${server} sudo initctl start openvswitch-switch
     ssh ${server} sudo initctl start neutron-plugin-openvswitch-agent
-    ssh ${server} sudo initctl start neutron-l3-agent
     ssh ${server} sudo initctl start neutron-dhcp-agent
-    set +e
-    ssh ${server} sudo initctl stop neutron-metadata-agent # Act/Stb service
-    set -e
 }
 
+ssh sv1 sudo crm resource stop g_metadata-service
 clear_neutron_log sv1
 clear_neutron_log sv2
 clear_neutron_log sv3
+ssh sv1 sudo crm resource start g_metadata-service
 
 # Cinder
 function clear_cinder_log {
@@ -130,7 +124,6 @@ function clear_cinder_log {
     set +e
     ssh ${server} sudo initctl stop cinder-scheduler
     ssh ${server} sudo initctl stop cinder-api
-    ssh ${server} sudo initctl stop cinder-volume
     set -e
     ssh ${server} ps -ef | fgrep cinder || true
     sleep 2
@@ -140,10 +133,10 @@ function clear_cinder_log {
     ssh ${server} sudo chmod ${dmode}      /var/log/cinder
     ssh ${server} sudo initctl start cinder-scheduler
     ssh ${server} sudo initctl start cinder-api
-    ssh ${server} sudo initctl start cinder-volume
 }
 
+ssh sv1 sudo crm resource stop p_cinder-volume
 clear_cinder_log sv1
 clear_cinder_log sv2
 clear_cinder_log sv3
-
+ssh sv1 sudo crm resource start p_cinder-volume
