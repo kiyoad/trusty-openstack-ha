@@ -4,8 +4,8 @@ primitive p_nova-compute ocf:openstack:nova-compute \
 
 location l_nova-compute p_nova-compute \
   rule 0: #uname eq sv1 \
-  rule 10: #uname eq sv2 \
-  rule 10: #uname eq sv3
+  rule 100: #uname eq sv2 \
+  rule 100: #uname eq sv3
 
 clone cl_nova-compute \
   p_nova-compute \

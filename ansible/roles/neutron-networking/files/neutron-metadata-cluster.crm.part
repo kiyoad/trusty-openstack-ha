@@ -1,17 +1,9 @@
 primitive p_neutron-metadata-agent ocf:openstack:neutron-metadata-agent \
-  params config="/etc/neutron/neutron.conf" \
-  agent_config="/etc/neutron/metadata_agent.ini" \
   op start interval="0s" timeout="300s" \
   op monitor interval="30s" timeout="30s"
 
 primitive p_neutron-l3-agent ocf:openstack:neutron-agent-l3 \
-  params config="/etc/neutron/neutron.conf" \
-  plugin_config="/etc/neutron/l3_agent.ini" \
   op start interval="0s" timeout="300s" \
   op monitor interval="30s" timeout="30s"
 
-group g_metadata_service p_neutron-metadata-agent p_neutron-l3-agent
-location l_metadata_service g_metadata_service \
-  rule 100: #uname eq sv1 \
-  rule 100: #uname eq sv2 \
-  rule 100: #uname eq sv3
+group g_metadata-service p_neutron-metadata-agent p_neutron-l3-agent
