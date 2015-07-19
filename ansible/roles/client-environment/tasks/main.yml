@@ -21,3 +21,10 @@
     - delete-sample-network.sh
     - get-cirros-and-reg.sh
     - clear-logs.sh
+
+- name: Run Ceph preparation script
+  shell: /home/vagrant/openstack/prepare-ceph.sh > /home/vagrant/openstack/prepare-ceph.log 2>&1
+  sudo_user: vagrant
+  args:
+    chdir: /home/vagrant/openstack
+    creates: /home/vagrant/openstack/prepare-ceph.done
