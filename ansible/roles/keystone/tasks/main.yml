@@ -109,8 +109,8 @@
 - name: Remove unused SQLite database
   file: path=/var/lib/keystone/keystone.db state=absent
 
-- name: Restart Keystone now if we need the database settings
-  service: name=apache2 enabled=yes state=restarted
+- name: Start Keystone now if we need the database settings
+  service: name=apache2 enabled=yes state=started
   when: require_db_settings
 
 - name: Wait Keystone if we need the database settings
