@@ -88,3 +88,11 @@
   copy: src=nova-compute.crm.part dest=/root/crm/nova-compute.crm.part
   notify: Register CRM
   when: require_crm_settings
+
+- name: Install libvirtd.conf
+  copy: src=libvirtd.conf dest=/etc/libvirt/libvirtd.conf
+  notify: Restart libvirt
+
+- name: Install libvirt-bin
+  copy: src=libvirt-bin dest=/etc/default/libvirt-bin
+  notify: Restart libvirt

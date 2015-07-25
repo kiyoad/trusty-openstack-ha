@@ -4,3 +4,6 @@
 - name: Restart Nova compute
   shell: crm resource restart cl_nova-compute
   ignore_errors: True
+
+- name: Restart libvirt
+  shell: service libvirt-bin restart
