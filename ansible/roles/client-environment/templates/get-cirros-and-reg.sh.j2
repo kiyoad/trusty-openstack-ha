@@ -11,7 +11,15 @@ export LC_ALL=C
 export OS_IMAGE_API_VERSION=2
 export OS_VOLUME_API_VERSION=2
 
-[[ -f ./cirros-0.3.4-x86_64-disk.img ]] || wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
-if ! (glance image-list | fgrep -q "cirros-0.3.4-x86_64"); then
-  glance image-create --name "cirros-0.3.4-x86_64" --file ./cirros-0.3.4-x86_64-disk.img --disk-format qcow2 --container-format bare --visibility public --progress
+target_ver=0.3.4
+target=cirros-${target_ver}-x86_64
+
+[[ -f ./${target}-disk.img ]] || wget http://download.cirros-cloud.net/${target_ver}/${target}-disk.img
+if ! (glance image-list | fgrep -q "${target}"); then
+  glance image-create --name "${target}" --file ./cirros-0.3.4-x86_64-disk.img --disk-format qcow2 --container-format bare --visibility public --progress
 fi
+id=$(glance image-list | awk '/ '${target}' /{print $2}')
+#glance image-update ${id} --property hw_scsi_model=virtio-scsi
+#glance image-update ${id} --property hw_disk_bus=scsi
+glance image-update ${id} --property hw_qemu_guest_agent=yes
+glance image-update ${id} --property os_require_quiesce=yes
