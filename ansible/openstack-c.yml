@@ -2,7 +2,6 @@
 # OpenStack servers
 
 - hosts:
-    - sv1
     - sv2
     - sv3
   roles:
@@ -16,7 +15,6 @@
     - neutron-compute
     - dashboard
     - cinder
-    - cinder-volume
   sudo: yes
   tags:
     - openstack

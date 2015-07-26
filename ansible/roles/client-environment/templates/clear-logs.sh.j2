@@ -61,6 +61,9 @@ function clear_nova_log {
     ssh ${server} sudo initctl stop nova-scheduler
     ssh ${server} sudo initctl stop nova-conductor
     ssh ${server} sudo initctl stop nova-novncproxy
+    if [[ ! ${server} = "sv1" ]]; then
+      ssh ${server} sudo service nova-compute stop
+    fi
     set -e
     ssh ${server} ps -ef | fgrep nova || true
     sleep 2
@@ -73,15 +76,16 @@ function clear_nova_log {
     ssh ${server} sudo initctl start nova-scheduler
     ssh ${server} sudo initctl start nova-conductor
     ssh ${server} sudo initctl start nova-novncproxy
+    if [[ ! ${server} = "sv1" ]]; then
+      ssh ${server} sudo service nova-compute start
+    fi
 }
 
-ssh sv1 sudo crm resource stop cl_nova-compute
 ssh sv1 sudo crm resource stop p_nova-consoleauth
 clear_nova_log sv1
 clear_nova_log sv2
 clear_nova_log sv3
 ssh sv1 sudo crm resource start p_nova-consoleauth
-ssh sv1 sudo crm resource start cl_nova-compute
 
 # Neutron
 function clear_neutron_log {
@@ -124,6 +128,9 @@ function clear_cinder_log {
     set +e
     ssh ${server} sudo initctl stop cinder-scheduler
     ssh ${server} sudo initctl stop cinder-api
+    if [[ ${server} = "sv1" ]]; then
+      ssh ${server} sudo initctl stop cinder-volume
+    fi
     set -e
     ssh ${server} ps -ef | fgrep cinder || true
     sleep 2
@@ -133,10 +140,11 @@ function clear_cinder_log {
     ssh ${server} sudo chmod ${dmode}      /var/log/cinder
     ssh ${server} sudo initctl start cinder-scheduler
     ssh ${server} sudo initctl start cinder-api
+    if [[ ${server} = "sv1" ]]; then
+      ssh ${server} sudo initctl start cinder-volume
+    fi
 }
 
-ssh sv1 sudo crm resource stop p_cinder-volume
 clear_cinder_log sv1
 clear_cinder_log sv2
 clear_cinder_log sv3
-ssh sv1 sudo crm resource start p_cinder-volume

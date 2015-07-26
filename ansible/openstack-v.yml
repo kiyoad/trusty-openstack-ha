@@ -1,0 +1,18 @@
+---
+# OpenStack servers
+
+- hosts:
+    - sv1
+  roles:
+    - openstack-common
+    - keystone
+    - glance
+    - nova
+    - neutron
+    - neutron-networking
+    - dashboard
+    - cinder
+    - cinder-volume
+  sudo: yes
+  tags:
+    - openstack

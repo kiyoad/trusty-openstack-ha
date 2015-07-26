@@ -1,8 +1,0 @@
-primitive p_cinder-volume ocf:openstack:cinder-volume \
-  params additional_parameters="--log-file=/var/log/cinder/cinder-volume.log" \
-  op start interval="0s" timeout="180s" on-fail="restart" \
-  op monitor interval="10s" timeout="60s" on-fail="restart" \
-  op stop interval="0s" timeout="300s" on-fail="block"
-
-colocation co_n-com_c-vol \
-  -inf: cl_nova-compute p_cinder-volume

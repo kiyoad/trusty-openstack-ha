@@ -2,5 +2,4 @@
 # Cinder volume handler
 
 - name: Restart Cinder volume
-  shell: crm resource restart p_cinder-volume
-  ignore_errors: True
+  shell: initctl restart cinder-volume

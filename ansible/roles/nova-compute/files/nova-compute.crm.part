@@ -1,8 +1,0 @@
-primitive p_nova-compute ocf:openstack:nova-compute \
-  op start interval="0s" timeout="60s" on-fail="restart" \
-  op monitor interval="10s" timeout="60s" on-fail="restart" \
-  op stop interval="0s" timeout="300s" on-fail="block"
-
-clone cl_nova-compute \
-  p_nova-compute \
-  meta clone-max="2"

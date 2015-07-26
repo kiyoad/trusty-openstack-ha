@@ -2,8 +2,7 @@
 # Nova compute handler
 
 - name: Restart Nova compute
-  shell: crm resource restart cl_nova-compute
-  ignore_errors: True
+  shell: service nova-compute restart
 
 - name: Restart libvirt
   shell: service libvirt-bin restart

@@ -52,11 +52,9 @@ scp ${secret_xml} sv1:/tmp
 scp ${secret_xml} sv2:/tmp
 scp ${secret_xml} sv3:/tmp
 
-ssh sv1 sudo virsh secret-define --file /tmp/${secret_xml}
 ssh sv2 sudo virsh secret-define --file /tmp/${secret_xml}
 ssh sv3 sudo virsh secret-define --file /tmp/${secret_xml}
 
-ssh sv1 sudo virsh secret-set-value --secret 57090ca8-c135-4349-b3d1-10d12467e081 --base64 $(cat ${cinder_getkey})
 ssh sv2 sudo virsh secret-set-value --secret 57090ca8-c135-4349-b3d1-10d12467e081 --base64 $(cat ${cinder_getkey})
 ssh sv3 sudo virsh secret-set-value --secret 57090ca8-c135-4349-b3d1-10d12467e081 --base64 $(cat ${cinder_getkey})
 
