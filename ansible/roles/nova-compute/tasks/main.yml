@@ -96,3 +96,27 @@
 - name: Install libvirt-bin
   copy: src=libvirt-bin dest=/etc/default/libvirt-bin
   notify: Restart libvirt
+
+- name: Set Ceph configuration
+  shell: |
+    cp /etc/ceph/ceph.conf /etc/ceph/ceph.conf.prev
+    crudini --set /etc/ceph/ceph.conf client rbd_cache true
+    crudini --set /etc/ceph/ceph.conf client rbd_cache_writethrough_until_flush true
+    crudini --set /etc/ceph/ceph.conf client admin_socket '/var/run/ceph/guests/$cluster-$type.$id.$pid.$cctid.asok'
+    crudini --set /etc/ceph/ceph.conf client log_file '/var/log/qemu/qemu-guest-$pid.log'
+    crudini --set /etc/ceph/ceph.conf client rbd_concurrent_management_ops 20
+  changed_when: False
+
+- name: Create Ceph directories
+  file: path={{ item }} state=directory owner=libvirt-qemu group=libvirtd mode=0755
+  with_items:
+    - /var/run/ceph/guests
+    - /var/log/qemu
+
+- name: Check Ceph configuration modification
+  shell: diff -u /etc/ceph/ceph.conf.prev /etc/ceph/ceph.conf
+  register: equal
+  ignore_errors: True
+  changed_when: equal|failed
+  notify:
+    - Restart Ceph

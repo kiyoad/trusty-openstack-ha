@@ -7,3 +7,6 @@
 
 - name: Restart libvirt
   shell: service libvirt-bin restart
+
+- name: Restart Ceph
+  shell: initctl restart ceph-all
