@@ -40,9 +40,9 @@ listen mysql
     option mysql-check user haproxy
     balance source
     # mysql -h {{ cluster_virtual_ip }} -uroot -p<pass> -e "show variables like 'hostname'"
-    server sv2 {{cluster_server_ips[1]}}:{{ mysql_port }} check port {{ mysql_port }} inter 5000 fall 2
+    server sv1 {{cluster_server_ips[0]}}:{{ mysql_port }} check port {{ mysql_port }} inter 5000 fall 2
+    server sv2 {{cluster_server_ips[1]}}:{{ mysql_port }} check port {{ mysql_port }} inter 5000 fall 2 backup
     server sv3 {{cluster_server_ips[2]}}:{{ mysql_port }} check port {{ mysql_port }} inter 5000 fall 2 backup
-    server sv1 {{cluster_server_ips[0]}}:{{ mysql_port }} check port {{ mysql_port }} inter 5000 fall 2 backup
 
 listen rabbitmq
     bind {{ cluster_virtual_ip }}:5672
@@ -51,9 +51,9 @@ listen rabbitmq
     timeout client 3h
     timeout server 3h
     option clitcpka
-    server sv3 {{cluster_server_ips[2]}}:{{ rabbitmq_port }} check inter 5000 rise 2 fall 3
     server sv1 {{cluster_server_ips[0]}}:{{ rabbitmq_port }} check inter 5000 rise 2 fall 3
     server sv2 {{cluster_server_ips[1]}}:{{ rabbitmq_port }} check inter 5000 rise 2 fall 3
+    server sv3 {{cluster_server_ips[2]}}:{{ rabbitmq_port }} check inter 5000 rise 2 fall 3
 
 listen keystone_admin_cluster
     bind {{ cluster_virtual_ip }}:35357
