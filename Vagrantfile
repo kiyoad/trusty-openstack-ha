@@ -9,7 +9,7 @@ nodes = {
 }
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "trusty-server-cloudimg-amd64"
 
   nodes.each do |prefix, (count, ip_start)|
     count.times do |i|
