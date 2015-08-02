@@ -32,7 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "starter" do |conf|
     conf.vm.hostname = "starter.local"
-    conf.vm.network :private_network, ip: "10.0.0.254"
+    conf.vm.network :private_network, ip: "10.0.0.250"
     conf.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--memory", "512" ]
     end
