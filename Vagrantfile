@@ -45,6 +45,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # In execution of the first Playbook, after you build a cluster of
     # DB and AMQP, please comment out the following line
     # 'ansible.skip_tags' and do 'vagrant provision' again.
-    #ansible.skip_tags = "openstack"
+    ansible.skip_tags = "openstack"
   end
 end
