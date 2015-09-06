@@ -134,6 +134,8 @@ https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-am
 
 1. Run `cd ~/openstack/` on the server `starter`.
 
+1. Run `./clear-logs.sh` for remove all the OpenStack logs and restart all the OpenStack services.
+
 1. Run `source admin-openrc.sh`.
 
 1. The `nova service-list` should look as follows.
@@ -220,10 +222,9 @@ https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-am
 
 1. [RabbitMQ] If all cluster nodes stop in a simultaneous and uncontrolled manner (for example with a power cut) you can be left with a situation in which all nodes think that some other node stopped after them. In this case you can use the force_boot command on one node to make it bootable again - consult the rabbitmqctl manpage for more information. (see https://www.rabbitmq.com/clustering.html)
 
-1. [OpenStack] If you want to clear all the OpenStack service logs, you can use `clear-logs.sh` as follows.
+1. [OpenStack] If you want to remove all the OpenStack service logs, you can use `clear-logs.sh` as follows.
 
     ```
     vagrant@starter:~$ cd ~/openstack/
     vagrant@starter:~/openstack$ ./clear-logs.sh
     ```
-
