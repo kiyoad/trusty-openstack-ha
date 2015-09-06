@@ -22,7 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           host: "#{5673 + 10000 * (i + 1)}" # HAProxy  http://localhost:X5673/haproxy?hastats
         conf.vm.network :private_network, ip: "10.0.0.#{ip_start + i}"
         conf.vm.network :private_network, ip: "10.0.1.#{ip_start + i}"
-        conf.vm.network :public_network,  ip: "0.0.0.0", bridge: "eno1"
+        conf.vm.network :public_network,  ip: "0.0.0.0"
         conf.vm.provider :virtualbox do |v|
           v.customize ["modifyvm", :id, "--memory", "4096",
                        "--nicpromisc4", "allow-all",
