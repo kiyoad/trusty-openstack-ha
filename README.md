@@ -4,7 +4,7 @@ OpenStack High Availability cluster demo for Ubuntu trusty by Ansible and Vagran
 ## Abstract
 
 This Vagrantfile will deploy the OpenStack Kilo environment on Ubuntu 14.04 LTS virtual machines with VirtualBox.
-OpenStack environment are running on the server *s1*, *s2* and *s3*, to form a high availability cluster. Server *starter* uses to build the environment.
+OpenStack environment are running on the server *sv1*, *sv2* and *sv3*, to form a high availability cluster. Server *starter* uses to build the environment.
 
 ![trusty-openstack-ha Networks](https://raw.githubusercontent.com/kiyoad/trusty-openstack-ha/master/images/trusty-openstack-ha-1.png)
 
