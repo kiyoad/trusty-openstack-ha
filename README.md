@@ -161,6 +161,22 @@ https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-am
     +----+------------------+------+----------+---------+-------+----------------------------+-----------------+
     ```
 
+    Sometimes `nova-compute` fail to come up. In that case, it may be to try the following.
+
+    ```
+    $ ssh sv2 sudo initctl stop nova-compute
+    $ ssh sv3 sudo initctl stop nova-compute
+    ```
+
+    Wait for a while.
+
+    ```
+    $ ssh sv2 sudo initctl start nova-compute
+    $ ssh sv3 sudo initctl start nova-compute
+    ```
+
+    Wait for a while and run `nova service-list` again.
+
 1. The `neutron agent-list` should look as follows.
 
     ```
