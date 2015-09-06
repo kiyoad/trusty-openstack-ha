@@ -10,5 +10,4 @@
     - ceph-deployer
     - xtradb-starter
     - rabbitmq-starter
-    - corosync-pacemaker-starter
   sudo: yes
